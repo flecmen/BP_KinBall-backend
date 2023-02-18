@@ -1,0 +1,182 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 Int             @id @default(autoincrement())
+  full_name          String
+  email              String
+  password           String
+  role               role
+  date_of_birth      DateTime?
+  last_signed_in     DateTime?
+  facebook           String?
+  instagram          String?
+  settings           Settings?
+  reward_system      Reward_system?
+  // Posts of which user is the author
+  posts              Post[]
+  //post whre user toggled to get notified for changes and updates
+  posts_notification Post[]          @relation("user-post_notification")
+  //events user is registered on
+  signed_in_events   Event[]         @relation("user-on-event")
+  //Eventy které user pořádá (trenér)
+  organising_events  Event[]
+  post_comments      Post_comment[]
+  post_likes         Post[]          @relation("post_likes")
+  post_comment_likes Post_comment[]  @relation("Post_comment_likes")
+  // Teams for events which requier teams (tournament)
+  teams              Team[]          @relation("users-in-event-teams")
+  //profile picture
+  profile_picture    Image?
+  //images user is tagged in
+  images_tagged_in   Image[]         @relation("image_tagged_users")
+  // Survey options user picked
+  survey_options     Survey_option[] @relation("voted_survey_option")
+  // Groups (tags) user is in
+  groups             Group[]         @relation("user_in_group")
+}
+
+model Settings {
+  userId             Int     @id
+  email_notification Boolean @default(true)
+  user               User    @relation(fields: [userId], references: [id])
+}
+
+model Reward_system {
+  userId Int  @id
+  xp     Int  @default(0)
+  level  Int  @default(0)
+  user   User @relation(fields: [userId], references: [id])
+}
+
+model Post {
+  id                Int             @id @default(autoincrement())
+  type              postType
+  heading           String
+  text              String?
+  time_of_creation  DateTime        @default(now())
+  author            User            @relation(fields: [authorId], references: [id])
+  authorId          Int
+  groups            Group[]         @relation("post_in_group")
+  event             Event?
+  images            Image[]
+  likes             User[]          @relation("post_likes")
+  comments          Post_comment[]
+  survey_options    Survey_option[]
+  user_notification User[]          @relation("user-post_notification")
+}
+
+model Post_comment {
+  id               Int      @id @default(autoincrement())
+  time_of_creation DateTime @default(now())
+  text             String
+  author           User     @relation(fields: [authorId], references: [id])
+  post             Post     @relation(fields: [postId], references: [id])
+  likes            User[]   @relation("Post_comment_likes")
+  postId           Int
+  authorId         Int
+}
+
+model Event {
+  id               Int       @id @default(autoincrement())
+  type             eventType
+  price            Int?
+  // date and time of the event taking place
+  time             DateTime
+  address          String
+  description      String?
+  people_limit     Int?
+  substitues_limit Int?
+  // note for after the event ends, filled by trainer
+  note             String?
+  address_short    String?
+  // related post, used for users to sign in on the event and read its information
+  post             Post      @relation(fields: [postId], references: [id])
+  //users registered on the event
+  players          User[]    @relation("user-on-event")
+  // organiser of the event, usually trainer for a training
+  organiser        User      @relation(fields: [organiserId], references: [id])
+  organiserId      Int
+  postId           Int       @unique
+  // registered teams for tournament
+  teams            Team[]
+  // lat and lng for google API (potencially)
+  address_lat      String?
+  address_lng      String?
+}
+
+model Team {
+  id      Int    @id @default(autoincrement())
+  name    String
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId Int
+  players User[] @relation("users-in-event-teams")
+}
+
+model Album {
+  id     Int     @id @default(autoincrement())
+  name   String
+  images Image[]
+}
+
+model Image {
+  id           Int    @id @default(autoincrement())
+  image_path   String
+  // user for profile pictures
+  user         User?  @relation(fields: [userId], references: [id])
+  userId       Int?   @unique
+  // images in posts
+  post         Post?  @relation(fields: [postId], references: [id])
+  postId       Int?
+  tagged_users User[] @relation("image_tagged_users")
+  // images sorted in albums
+  album        Album? @relation(fields: [albumId], references: [id])
+  albumId      Int?
+}
+
+model Survey_option {
+  id     Int    @id @default(autoincrement())
+  text   String
+  post   Post   @relation(fields: [postId], references: [id])
+  postId Int
+  votes  User[] @relation("voted_survey_option")
+}
+
+model Group {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  color String?
+  users User[]  @relation("user_in_group")
+  posts Post[]  @relation("post_in_group")
+}
+
+enum role {
+  admin
+  trener
+  clen_spolku_hrac
+  neclen_spolku_hrac
+  hrac_z_jineho_klubu
+  zajemce
+}
+
+enum postType {
+  event
+  text
+  survey
+}
+
+enum eventType {
+  trenink
+  kurz_pro_mladez
+  turnaj
+  jednorazova_akce
+}
