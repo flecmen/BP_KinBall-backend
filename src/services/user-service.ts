@@ -25,10 +25,15 @@ export default {
         });
     },
 
-    async createUser(data: Prisma.UserCreateInput): Promise<User> {
-        return prisma.user.create({
+    async createUser(data: Prisma.UserCreateInput) {
+        data.settings = { create: {} }
+        data.reward_system = { create: {} }
+        //TODO: přidat default profile_picture
+        //přidat do defaultní skupniy "všichni"
+        await prisma.user.create({
             data,
         });
+        return this.getUser({ email: data.email })
     },
 
     async updateUser(userId: User['id'], userUpdateInput: Prisma.UserUpdateInput): Promise<User> {

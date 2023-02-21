@@ -16,13 +16,23 @@ export default {
         if (user === null) res.status(404)
         res.json(user);
     },
-    // příchozí: {user {}: User}
+
     createUser: async (req: Request, res: Response) => {
-        const user = await userService.createUser(req.body.user)
-        //Vytvořit settings a reward system
-        //přiřadit default profile_picture
-        //přidat do defaultní skupniy "všichni"
+        const user = await userService.createUser(req.body)
         res.json(user);
     },
 
+    updateUser: async (req: Request, res: Response) => {
+        const userId = parseInt(req.params.userId);
+        let user = req.body;
+        user.image = { update: user.image }
+        const updatedUser = await userService.updateUser(userId, req.body)
+        res.json(updatedUser);
+    },
+
+    deleteUser: async (req: Request, res: Response) => {
+        const userId = parseInt(req.params.userId);
+        await userService.deleteUser({ id: userId });
+        res.status(204);
+    },
 }

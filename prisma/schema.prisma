@@ -48,14 +48,15 @@ model User {
 model Settings {
   userId             Int     @id
   email_notification Boolean @default(true)
-  user               User    @relation(fields: [userId], references: [id])
+  push_notification  Boolean @default(false)
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Reward_system {
   userId Int  @id
   xp     Int  @default(0)
   level  Int  @default(0)
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Post {
