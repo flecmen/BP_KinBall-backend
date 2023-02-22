@@ -36,7 +36,7 @@ export default {
         return this.getUser({ email: data.email })
     },
 
-    async updateUser(userId: User['id'], userUpdateInput: Prisma.UserUpdateInput): Promise<User> {
+    async updateUser(userId: User['id'], userUpdateInput: Prisma.UserUpdateInput) {
         let updatedUser = await prisma.user.update({
             where: {
                 id: userId
@@ -44,7 +44,7 @@ export default {
             data: userUpdateInput
         })
 
-        return updatedUser
+        return this.getUser({ email: data.email })
     },
 
     async updatePassword(userWhereUniqueInput: Prisma.UserWhereUniqueInput, password: User["password"]) {
