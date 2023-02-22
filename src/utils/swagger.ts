@@ -1,6 +1,7 @@
 import { Express, Request, Response } from "express";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
+import { version } from '../../package.json'
 import Logger from "./logger";
 
 const options: swaggerJsdoc.Options = {
@@ -8,7 +9,7 @@ const options: swaggerJsdoc.Options = {
         openapi: "3.0.0",
         info: {
             title: "Kin-ball API",
-            version: "1.0.0",
+            version,
             description: "Dokumentace API webové aplikace Kin-Ball Institutu v Brně"
         },
         servers: [
@@ -16,8 +17,17 @@ const options: swaggerJsdoc.Options = {
                 url: "http://localhost:3000"
             }
         ],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: "http",
+                    cheme: "bearer",
+                    bearerFormat: "JWT",
+                },
+            },
+        },
     },
-    apis: ["./routes/*router.ts"]
+    apis: ["src/routes/*.ts"]
 }
 
 const swaggerSpec = swaggerJsdoc(options);

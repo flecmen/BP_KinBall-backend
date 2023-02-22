@@ -30,9 +30,13 @@ export default {
         data.reward_system = { create: {} }
         //TODO: přidat default profile_picture
         //přidat do defaultní skupniy "všichni"
-        await prisma.user.create({
-            data,
-        });
+        try {
+            await prisma.user.create({
+                data,
+            });
+        } catch (e) {
+            Logger.warn('uživatel již existuje ')
+        }
         return this.getUser({ email: data.email })
     },
 
@@ -44,7 +48,7 @@ export default {
             data: userUpdateInput
         })
 
-        return this.getUser({ email: data.email })
+        return this.getUser({ email: userUpdateInput.email as string })
     },
 
     async updatePassword(userWhereUniqueInput: Prisma.UserWhereUniqueInput, password: User["password"]) {

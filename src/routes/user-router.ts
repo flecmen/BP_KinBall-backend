@@ -5,6 +5,11 @@ const router = express.Router();
 
 /**
  * @swagger
+ * /user:
+ *  get:
+ *   description: Funguje to
+ *   responses:
+ *    200: Result
  */
 router.get('/', userController.getAllUsers)
 router.get('/:userId', userController.getUser)
