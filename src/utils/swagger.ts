@@ -27,7 +27,7 @@ const options: swaggerJsdoc.Options = {
             },
         },
     },
-    apis: ["src/routes/*.ts"]
+    apis: ["src/routes/*.ts", "prisma/schema.prisma"]
 }
 
 const swaggerSpec = swaggerJsdoc(options);

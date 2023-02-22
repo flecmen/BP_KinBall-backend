@@ -7,9 +7,12 @@ const router = express.Router();
  * @swagger
  * /user:
  *  get:
- *   description: Funguje to
+ *   description: Use to request all users
  *   responses:
- *    200: Result
+ *    200: 
+ *     description: A successful response
+ *    schema:
+ *     $ref: '#components/schemas/User'
  */
 router.get('/', userController.getAllUsers)
 router.get('/:userId', userController.getUser)
