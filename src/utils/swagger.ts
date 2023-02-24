@@ -25,7 +25,92 @@ const options: swaggerJsdoc.Options = {
                     bearerFormat: "JWT",
                 },
             },
-        },
+            schemas: {
+                Settings: {
+                    type: Object,
+                    properties: {
+                        userId: {
+                            type: Number,
+                            example: 1,
+                            description: 'id of user (1:1 relation)'
+                        },
+                        email_notiffication: {
+                            type: Boolean,
+                            example: true
+                        },
+                        push_notification: {
+                            type: Boolean,
+                            example: true
+                        }
+                    }
+                },
+                Reward_system: {
+                    type: Object,
+                    properties: {
+                        userId: {
+                            type: Number,
+                            example: 1,
+                            description: 'id of user (1:1 relation)'
+                        },
+                        xp: {
+                            type: Number,
+                            example: 0
+                        },
+                        level: {
+                            type: Number,
+                            example: 1
+                        }
+                    }
+                },
+                User: {
+                    type: Object,
+                    properties: {
+                        id: {
+                            type: Number,
+                            example: 1
+                        },
+                        full_name: {
+                            type: String,
+                            example: 'Jan Novák'
+                        },
+                        email: {
+                            type: String,
+                            example: 'John@example.com'
+                        },
+                        password: {
+                            type: String,
+                            example: 'heslo'
+                        },
+                        role: {
+                            type: String,
+                            example: 'trener'
+                        },
+                        date_of_birth: {
+                            type: String,
+                            example: '1989-04-10T22:00:00.000Z'
+                        },
+                        last_signed_in: {
+                            type: String,
+                            example: '2023-02-23T15:32:32.548Z'
+                        },
+                        facebook: {
+                            type: String,
+                            example: 'https://www.facebook.com/FlekDavid/'
+                        },
+                        instagram: {
+                            type: String,
+                            example: 'https://www.instagram.com/FlekDavid/'
+                        },
+                        settings: {
+                            $ref: '#components/schemas/Settings'
+                        },
+                        reward_system: {
+                            $ref: '#components/schemas/Reward_system'
+                        }
+                    }
+                }
+            }
+        }
     },
     apis: ["src/routes/*.ts", "prisma/schema.prisma"]
 }

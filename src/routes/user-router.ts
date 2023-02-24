@@ -11,10 +11,32 @@ const router = express.Router();
  *   responses:
  *    200: 
  *     description: A successful response
- *    schema:
- *     $ref: '#components/schemas/User'
  */
 router.get('/', userController.getAllUsers)
+
+/**
+ * @swagger
+ * /user/{userId}:
+ *  get:
+ *   description: Use to request a single user by id
+ *   parameters:
+ *   - in: path
+ *     name: userId
+ *     schema:
+ *      type: number
+ *     required: true
+ *     description: Numeric id of the user to get
+ *   responseBody:
+ *    content:
+ *     application/json:
+ *      schema:
+ *       type: object
+ *       properties:
+ *        id: number
+ *   responses:
+ *    200: 
+ *     description: A successful response
+ */
 router.get('/:userId', userController.getUser)
 
 //Create user

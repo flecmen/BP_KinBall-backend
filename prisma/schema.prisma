@@ -10,6 +10,11 @@ generator docs {
   output   = "../src/generated/prisma-docs"
 }
 
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "../src/generated/ERD.svg"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
