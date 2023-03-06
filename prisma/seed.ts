@@ -2,6 +2,7 @@ import { PrismaClient, postType, eventType, role } from '@prisma/client'
 import userService from '../src/services/user-service';
 import postService from '../src/services/post-service';
 import dotenv from 'dotenv';
+import authService from '../src/services/auth-service';
 
 const prisma = new PrismaClient()
 dotenv.config();
@@ -10,7 +11,7 @@ const mockUsers = {
     userAdmin: {
         full_name: 'David Flek',
         email: process.env.ADMIN_EMAIL as string,
-        password: process.env.ADMIN_PASSWORD as string,
+        password: authService.hashPassword(process.env.ADMIN_PASSWORD as string),
         role: role.admin,
         date_of_birth: new Date(1989, 3, 11),
         last_signed_in: new Date(),
@@ -26,7 +27,7 @@ async function main() {
         {
             full_name: 'John Doe',
             email: 'johndoe@example.com',
-            password: 'password123',
+            password: authService.hashPassword('heslo'),
             role: role.trener,
             date_of_birth: new Date(1990, 5, 1),
             last_signed_in: new Date(),
@@ -38,7 +39,7 @@ async function main() {
         {
             full_name: 'Jane Smith',
             email: 'janesmith@example.com',
-            password: 'password456',
+            password: authService.hashPassword('heslo'),
             role: role.trener,
             date_of_birth: new Date(1985, 8, 22),
             last_signed_in: new Date(),

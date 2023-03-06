@@ -1,7 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 import Logger from './utils/logger';
-import morganMiddleware from './utils/morganMiddleware'
+import morganMiddleware from './middleware/morganMiddleware'
 import userRouter from './routes/user-router'
 import authRouter from './routes/auth-router'
 import swaggerDocs from './utils/swagger';
@@ -27,10 +27,12 @@ app.get('/', (req: Request, res: Response) => {
 
 const port = process.env.PORT;
 
-app.listen(port, () => {
-    Logger.info(`Server is running at http://localhost:${port}`);
-    const numberPort = parseInt(port as string)
-    swaggerDocs(app, numberPort);
-});
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(port, () => {
+        Logger.info(`Server is running at http://localhost:${port}`);
+        const numberPort = parseInt(port as string)
+        swaggerDocs(app, numberPort);
+    });
+}
 
 export default app;
