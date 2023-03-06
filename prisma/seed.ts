@@ -3,19 +3,22 @@ import userService from '../src/services/user-service';
 import postService from '../src/services/post-service';
 const prisma = new PrismaClient()
 
+const mockUsers = {
+    userAdmin: {
+        full_name: 'David Flek',
+        email: 'davidovkyflekovky@gmail.com',
+        password: 'heslo',
+        role: role.admin,
+        date_of_birth: new Date(1989, 3, 11),
+        last_signed_in: new Date(),
+        facebook: 'https://facebook.com/davidflek',
+        instagram: 'https://instagram.com/davidflek',
+    }
+}
+
+
 async function main() {
-    const userAdmin = await userService.createUser(
-        {
-            full_name: 'David Flek',
-            email: 'davidovkyflekovky@gmail.com',
-            password: 'heslo',
-            role: role.admin,
-            date_of_birth: new Date(1989, 3, 11),
-            last_signed_in: new Date(),
-            facebook: 'https://facebook.com/davidflek',
-            instagram: 'https://instagram.com/davidflek',
-        }
-    )
+    const userAdmin = await userService.createUser(mockUsers.userAdmin)
     const user1 = await userService.createUser(
         {
             full_name: 'John Doe',
@@ -90,3 +93,5 @@ async function main() {
 
 main()
     .catch(e => { throw e })
+
+export default mockUsers;

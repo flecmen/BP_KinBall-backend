@@ -30,3 +30,5 @@ app.listen(port, () => {
     const numberPort = parseInt(port as string)
     swaggerDocs(app, numberPort);
 });
+
+export default app;

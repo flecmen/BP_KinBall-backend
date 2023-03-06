@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { User } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import userService from "../services/user-service"
 import Logger from "../utils/logger";
 
@@ -12,22 +12,38 @@ export default {
 
     getUser: async (req: Request, res: Response) => {
         const userId: User["id"] = parseInt(req.params.userId);
+        if (isNaN(userId)) {
+            res.status(400).send('UserId is NaN');
+            return;
+        }
         const user = await userService.getUser({ id: userId });
-        if (user === null) res.status(404)
+        if (user === null) {
+            res.status(404).send('User doesn\'t exist');
+            return;
+        }
         res.json(user);
     },
 
     createUser: async (req: Request, res: Response) => {
         const user = await userService.createUser(req.body)
-        res.json(user);
+        // is email taken?
+        if (user === null) {
+            res.status(403).send("email taken")
+            return
+        }
+        res.status(201).json(user);
     },
 
     updateUser: async (req: Request, res: Response) => {
         const userId = parseInt(req.params.userId);
-        let user = req.body;
-        user.image = { update: user.image }
+
+        if (isNaN(userId)) {
+            res.status(400).send('UserId is NaN');
+            return;
+        }
+
         const updatedUser = await userService.updateUser(userId, req.body)
-        res.json(updatedUser);
+        res.status(200).json(updatedUser);
     },
 
     deleteUser: async (req: Request, res: Response) => {

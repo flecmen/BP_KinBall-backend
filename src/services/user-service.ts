@@ -35,7 +35,8 @@ export default {
                 data,
             });
         } catch (e) {
-            Logger.warn('uživatel již existuje ')
+            Logger.warn('createUser service: ' + e)
+            return null
         }
         return this.getUser({ email: data.email })
     },

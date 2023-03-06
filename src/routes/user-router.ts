@@ -47,7 +47,7 @@ router.put('/', userController.createUser)
 router.put('/:userId', userController.updateUser)
 
 //delete user
-//TODO: zkontrolovat -> admin || user sám
+//TODO: zkontrolovat -> admin || user sobě
 router.delete('/:userId', userController.deleteUser)
 
 export default router;
