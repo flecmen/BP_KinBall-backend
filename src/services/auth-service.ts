@@ -16,6 +16,7 @@ export default {
             config.jwtConfig.secret as Secret,
             {
                 algorithm: config.jwtConfig.algorithms[0],
+                expiresIn: config.jwtConfig.expirationTime,
             } as SignOptions,
         );
     },

@@ -1,5 +1,6 @@
 import express from "express";
 import userController from "../controllers/user-controller";
+import jwtVerify from '../middleware/jwtVerify'
 
 const router = express.Router();
 

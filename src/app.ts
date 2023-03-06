@@ -5,23 +5,25 @@ import morganMiddleware from './utils/morganMiddleware'
 import userRouter from './routes/user-router'
 import authRouter from './routes/auth-router'
 import swaggerDocs from './utils/swagger';
+import jwtVerify from './middleware/jwtVerify';
 
 //uložení .env proměnných do process.env
 dotenv.config();
 
 const app: Express = express();
 
+// Middleware
 app.use(morganMiddleware) // Logger
+app.use('/user', jwtVerify) // Check if JWT isn't expired
+app.use('/user', jwtVerify)
 app.use(express.json());
 
-
+// Routery
+app.use('/auth', authRouter)
+app.use('/user', userRouter)
 app.get('/', (req: Request, res: Response) => {
     res.send('Express + TypeScript Server');
 });
-
-app.use('/auth', authRouter)
-app.use('/user', userRouter)
-
 
 const port = process.env.PORT;
 

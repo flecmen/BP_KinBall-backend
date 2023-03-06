@@ -1,13 +1,16 @@
 import { PrismaClient, postType, eventType, role } from '@prisma/client'
 import userService from '../src/services/user-service';
 import postService from '../src/services/post-service';
+import dotenv from 'dotenv';
+
 const prisma = new PrismaClient()
+dotenv.config();
 
 const mockUsers = {
     userAdmin: {
         full_name: 'David Flek',
-        email: 'davidovkyflekovky@gmail.com',
-        password: 'heslo',
+        email: process.env.ADMIN_EMAIL as string,
+        password: process.env.ADMIN_PASSWORD as string,
         role: role.admin,
         date_of_birth: new Date(1989, 3, 11),
         last_signed_in: new Date(),
