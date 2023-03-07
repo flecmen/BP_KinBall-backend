@@ -6,6 +6,7 @@ import userRouter from './routes/user-router'
 import authRouter from './routes/auth-router'
 import swaggerDocs from './utils/swagger';
 import jwtVerify from './middleware/jwtVerify';
+import isAdmin from './middleware/isAdmin';
 
 //uložení .env proměnných do process.env
 dotenv.config();
@@ -17,6 +18,7 @@ app.use(morganMiddleware) // Logger
 app.use('/user', jwtVerify) // Check if JWT isn't expired
 app.use('/user', jwtVerify)
 app.use(express.json());
+app.use('/user', isAdmin)
 
 // Routery
 app.use('/auth', authRouter)

@@ -32,7 +32,7 @@ const PORT = requireEnv('PORT');
 const FRONT_ROOT_URL = defaultEnv('FRONT_ROOT_URL', 'http://localhost:9000');
 const API_ROOT_URL = defaultEnv('API_ROOT_URL', `http://localhost:${PORT}`);
 const JWT_SECRET = requireEnv('JWT_SECRET');
-const JWT_EXPIRATION_TIME = requireEnv('JWT_EXPIRATION_TIME')
+const JWT_EXPIRATION_TIME = parseInt(requireEnv('JWT_EXPIRATION_TIME') as string)
 const JWT_SALT = requireEnv('JWT_SALT');
 
 export default {
@@ -42,7 +42,7 @@ export default {
     jwtConfig: {
         secret: JWT_SECRET as Params['secret'],
         algorithms: ['HS256'] as Params['algorithms'],
-        expirationTime: JWT_EXPIRATION_TIME as string | number,
+        expirationTime: JWT_EXPIRATION_TIME,
     },
     passwordConfig: {
         salt: JWT_SALT,
