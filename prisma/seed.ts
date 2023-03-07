@@ -1,8 +1,9 @@
 import { PrismaClient, postType, eventType, role } from '@prisma/client'
 import userService from '../src/services/user-service';
 import postService from '../src/services/post-service';
-import dotenv from 'dotenv';
 import authService from '../src/services/auth-service';
+import groupService from '../src/services/group-service';
+import dotenv from 'dotenv';
 
 const prisma = new PrismaClient()
 dotenv.config();
@@ -22,6 +23,11 @@ const mockUsers = {
 
 
 async function main() {
+    const group1 = await groupService.createGroup({
+        name: "all",
+        color: "grey"
+    })
+
     const userAdmin = await userService.createUser(mockUsers.userAdmin)
     const user1 = await userService.createUser(
         {
@@ -46,19 +52,14 @@ async function main() {
         }
     )
 
-    const group1 = await prisma.group.create({
-        data: {
-            name: "all",
-            color: "grey"
-        }
-    })
+
 
     const post2 = await postService.createPost({
         type: postType.event,
         heading: "heading2",
         author: { connect: { id: user1?.id } },
         groups: {
-            connect: [{ id: group1.id }]
+            connect: [{ id: group1?.id }]
         },
     }
     )
@@ -86,7 +87,7 @@ async function main() {
             heading: "heading",
             author: { connect: { id: user1?.id } },
             groups: {
-                connect: [{ id: group1.id }]
+                connect: [{ id: group1?.id }]
             },
         }
     )
