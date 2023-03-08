@@ -7,11 +7,16 @@ import authRouter from './routes/auth-router'
 import swaggerDocs from './utils/swagger';
 import jwtVerify from './middleware/jwtVerify';
 import isAdmin from './middleware/isAdmin';
+import cors from 'cors'
+import config from './config';
 
 //uložení .env proměnných do process.env
 dotenv.config();
 
 const app: Express = express();
+
+//Security
+app.use(cors({ origin: config.FRONT_ROOT_URL }));
 
 // Middleware
 app.use(morganMiddleware) // Logger
