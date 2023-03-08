@@ -36,6 +36,10 @@ export default {
             token: authService.generateToken(user),
             user: user
         };
+
+        //Přidat nový čas přihlášení
+        await userService.updateUser({ id: user.id }, { last_signed_in: new Date() });
+
         res.status(202).json(response)
     }
 

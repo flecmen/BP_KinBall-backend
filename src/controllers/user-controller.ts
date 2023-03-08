@@ -42,7 +42,7 @@ export default {
             return;
         }
 
-        const updatedUser = await userService.updateUser(userId, req.body)
+        const updatedUser = await userService.updateUser({ id: userId }, req.body)
         res.status(200).json(updatedUser);
     },
 

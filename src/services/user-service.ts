@@ -41,15 +41,13 @@ export default {
         return this.getUser({ email: data.email })
     },
 
-    async updateUser(userId: User['id'], userUpdateInput: Prisma.UserUpdateInput) {
+    async updateUser(userWhereUniqueInput: Prisma.UserWhereUniqueInput, userUpdateInput: Prisma.UserUpdateInput) {
         let updatedUser = await prisma.user.update({
-            where: {
-                id: userId
-            },
+            where: userWhereUniqueInput,
             data: userUpdateInput
         })
 
-        return this.getUser({ email: userUpdateInput.email as string })
+        return this.getUser({ email: updatedUser.email as string })
     },
 
     async updatePassword(userWhereUniqueInput: Prisma.UserWhereUniqueInput, password: User["password"]) {
