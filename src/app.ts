@@ -4,6 +4,7 @@ import Logger from './utils/logger';
 import morganMiddleware from './middleware/morganMiddleware'
 import userRouter from './routes/user-router'
 import authRouter from './routes/auth-router'
+import postRouter from './routes/post-router'
 import swaggerDocs from './utils/swagger';
 import jwtVerify from './middleware/jwtVerify';
 import isAdmin from './middleware/isAdmin';
@@ -15,6 +16,8 @@ dotenv.config();
 
 const app: Express = express();
 
+app.use(express.json());
+
 //Security
 app.use(cors({ origin: config.FRONT_ROOT_URL }));
 
@@ -22,12 +25,12 @@ app.use(cors({ origin: config.FRONT_ROOT_URL }));
 app.use(morganMiddleware) // Logger
 app.use('/user', jwtVerify) // Check if JWT isn't expired
 app.use('/user', jwtVerify)
-app.use(express.json());
 app.use('/user', isAdmin)
 
 // Routery
 app.use('/auth', authRouter)
 app.use('/user', userRouter)
+app.use('/post', postRouter)
 app.get('/', (req: Request, res: Response) => {
     res.send('Express + TypeScript Server');
 });

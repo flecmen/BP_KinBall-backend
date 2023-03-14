@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export default {
     async getPost(postWhereUniqueInput: Prisma.PostWhereUniqueInput) {
-        return prisma.post.findUnique({
+        return await prisma.post.findUnique({
             where: postWhereUniqueInput,
             include: {
                 author: true,
@@ -37,4 +37,19 @@ export default {
 
         return this.getPost({ id: postId })
     },
+
+    async getAllPosts() {
+        return await prisma.post.findMany({
+            include: {
+                author: true,
+                groups: true,
+                event: true,
+                images: true,
+                likes: true,
+                comments: true,
+                survey_options: true,
+                user_notification: true
+            }
+        })
+    }
 }

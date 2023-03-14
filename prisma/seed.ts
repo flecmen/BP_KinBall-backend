@@ -28,6 +28,11 @@ async function main() {
         color: "grey"
     })
 
+    const group2 = await groupService.createGroup({
+        name: "testGroup",
+        color: "red-6"
+    })
+
     const userAdmin = await userService.createUser(mockUsers.userAdmin)
     const user1 = await userService.createUser(
         {
@@ -59,8 +64,9 @@ async function main() {
         heading: "heading2",
         author: { connect: { id: user1?.id } },
         groups: {
-            connect: [{ id: group1?.id }]
+            connect: [{ id: group1?.id }, { id: group2?.id }]
         },
+        text: 'Integer rutrum, orci vestibulum ullamcorper ultricies, lacus quam ultricies odio, vitae placerat pede sem sit amet enim. Proin in tellus sit amet nibh dignissim sagittis. Nulla non lectus sed nisl molestie malesuada. Nullam sit amet magna in magna gravida vehicula. Mauris dictum facilisis augue. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Fusce tellus odio, dapibus id fermentum quis, suscipit id erat. '
     }
     )
 
@@ -89,6 +95,7 @@ async function main() {
             groups: {
                 connect: [{ id: group1?.id }]
             },
+            text: 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Mauris tincidunt sem sed arcu. Praesent id justo in neque elementum ultrices. Maecenas aliquet accumsan leo. Nunc tincidunt ante vitae massa. In dapibus augue non sapien. Duis bibendum, lectus ut viverra rhoncus, dolor nunc faucibus libero, eget facilisis enim ipsum id lacus. Integer in sapien. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ac dolor sit amet purus malesuada congue. Et harum quidem rerum facilis est et expedita distinctio. Fusce suscipit libero eget elit. Nullam lectus justo, vulputate eget mollis sed, tempor sed magna. Mauris suscipit, ligula sit amet pharetra semper, nibh ante cursus purus, vel sagittis velit mauris vel metus. Fusce nibh. Aenean vel massa quis mauris vehicula lacinia.'
         }
     )
 
