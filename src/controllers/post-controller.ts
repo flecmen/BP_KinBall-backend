@@ -16,7 +16,7 @@ export default {
     getPost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
         const post = await postService.getPost({ id: postId });
-        res.status(202).json(post)
+        res.status(200).json(post)
     },
 
     getAllPosts: async (req: Request, res: Response) => {
@@ -71,13 +71,13 @@ export default {
         const postId = parseInt(req.params.postId);
         const userId = parseInt(req.params.userId);
         const post = await postService.editPost({ id: postId }, { likes: { connect: { id: userId } } })
-        res.status(202).json(post)
+        res.status(201).json(post)
     },
     deleteLikePost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
         const userId = parseInt(req.params.userId);
         const post = await postService.editPost({ id: postId }, { likes: { disconnect: { id: userId } } })
-        res.status(202).json(post)
+        res.status(204).json(post)
     },
     commentPost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
@@ -98,7 +98,7 @@ export default {
                     ],
                 },
             })
-        res.status(202).json(post)
+        res.status(201).json(post)
     },
     deleteCommentPost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
@@ -120,7 +120,7 @@ export default {
         const commentId = parseInt(req.params.commentId);
         const userId = parseInt(req.params.userId);
         const comment = await postService.editComment({ id: commentId }, { likes: { connect: { id: userId } } })
-        res.status(202).json(comment)
+        res.status(201).json(comment)
     },
     deleteLikeComment: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
