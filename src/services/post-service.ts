@@ -27,15 +27,13 @@ export default {
         return this.getPost({ id: new_post.id })
     },
 
-    async editPost(postId: Post['id'], postUpdateInput: Prisma.PostUpdateInput) {
+    async editPost(postWhereUniqueInput: Prisma.PostWhereUniqueInput, postUpdateInput: Prisma.PostUpdateInput) {
         await prisma.post.update({
-            where: {
-                id: postId
-            },
+            where: postWhereUniqueInput,
             data: postUpdateInput
         })
 
-        return this.getPost({ id: postId })
+        return this.getPost({ id: postWhereUniqueInput.id })
     },
 
     async getAllPosts() {
@@ -51,5 +49,22 @@ export default {
                 user_notification: true
             }
         })
+    },
+    async getComment(post_commentWhereUniqueInput: Prisma.Post_commentWhereUniqueInput) {
+        return await prisma.post_comment.findUnique({
+            where: post_commentWhereUniqueInput,
+            include: {
+                author: true,
+            }
+        })
+    },
+
+    async editComment(post_commentWhereUniqueInput: Prisma.Post_commentWhereUniqueInput, post_commentUpdateInput: Prisma.Post_commentUpdateInput) {
+        await prisma.post_comment.update({
+            where: post_commentWhereUniqueInput,
+            data: post_commentUpdateInput
+        })
+        return this.getComment(post_commentWhereUniqueInput)
     }
+
 }

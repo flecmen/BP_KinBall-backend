@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import postService from "../services/post-service";
-import { Post, postType } from '@prisma/client';
+import { Post, Post_comment, postType } from '@prisma/client';
 import Logger from "../utils/logger";
 
 // function isTruthy(post: Post): boolean {
@@ -15,7 +15,7 @@ import Logger from "../utils/logger";
 export default {
     getPost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
-        const post = postService.getPost({ id: postId });
+        const post = await postService.getPost({ id: postId });
         res.status(202).json(post)
     },
 
@@ -52,7 +52,7 @@ export default {
             post.event = { create: post.event }
         }
 
-        const new_post = postService.createPost(post);
+        const new_post = await postService.createPost(post);
         res.status(201).json(new_post)
     },
 
@@ -64,8 +64,71 @@ export default {
             res.status(400).send('something is missing')
             return;
         }
-        const new_post = postService.editPost(postId, post);
+        const new_post = await postService.editPost({ id: postId }, post);
         res.status(202).json(new_post)
     },
+    likePost: async (req: Request, res: Response) => {
+        const postId = parseInt(req.params.postId);
+        const userId = parseInt(req.params.userId);
+        const post = await postService.editPost({ id: postId }, { likes: { connect: { id: userId } } })
+        res.status(202).json(post)
+    },
+    deleteLikePost: async (req: Request, res: Response) => {
+        const postId = parseInt(req.params.postId);
+        const userId = parseInt(req.params.userId);
+        const post = await postService.editPost({ id: postId }, { likes: { disconnect: { id: userId } } })
+        res.status(202).json(post)
+    },
+    commentPost: async (req: Request, res: Response) => {
+        const postId = parseInt(req.params.postId);
+        const userId = parseInt(req.params.userId);
+        const comment: Post_comment = req.body;
+        const post = await postService.editPost({ id: postId },
+            {
+                comments: {
+                    create: [
+                        {
+                            text: comment.text,
+                            author: {
+                                connect: {
+                                    id: userId,
+                                },
+                            },
+                        },
+                    ],
+                },
+            })
+        res.status(202).json(post)
+    },
+    deleteCommentPost: async (req: Request, res: Response) => {
+        const postId = parseInt(req.params.postId);
+        const commentId = parseInt(req.params.commentId);
+        await postService.editPost({ id: postId },
+            {
+                comments: {
+                    delete: [
+                        {
+                            id: commentId
+                        }
+                    ]
+                }
+            })
+        res.status(204)
+    },
+    likeComment: async (req: Request, res: Response) => {
+        const postId = parseInt(req.params.postId);
+        const commentId = parseInt(req.params.commentId);
+        const userId = parseInt(req.params.userId);
+        const comment = await postService.editComment({ id: commentId }, { likes: { connect: { id: userId } } })
+        res.status(202).json(comment)
+    },
+    deleteLikeComment: async (req: Request, res: Response) => {
+        const postId = parseInt(req.params.postId);
+        const commentId = parseInt(req.params.commentId);
+        const userId = parseInt(req.params.userId);
+        await postService.editComment({ id: commentId }, { likes: { delete: { id: userId } } })
+        res.status(204)
+    },
+
 
 }
