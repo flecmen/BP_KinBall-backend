@@ -23,8 +23,8 @@ app.use(cors({ origin: config.FRONT_ROOT_URL }));
 
 // Middleware
 app.use(morganMiddleware) // Logger
-app.use('/user', jwtVerify) // Check if JWT isn't expired
-app.use('/user', isAdmin)
+app.use('/user', jwtVerify, isAdmin)
+app.use('/post', jwtVerify, isAdmin)
 
 // Routery
 app.use('/auth', authRouter)

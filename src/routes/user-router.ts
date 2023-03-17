@@ -1,6 +1,8 @@
 import express from "express";
 import userController from "../controllers/user-controller";
 import jwtVerify from '../middleware/jwtVerify'
+import { validateRequestSchema } from "../middleware/validateRequestSchema";
+import checkParameters from '../helpers/parametersSchema';
 
 const router = express.Router();
 
@@ -38,17 +40,17 @@ router.get('/', userController.getAllUsers)
  *    200: 
  *     description: A successful response
  */
-router.get('/:userId', userController.getUser)
+router.get('/:userId', checkParameters, validateRequestSchema, userController.getUser)
 
 //Create user
 router.put('/', userController.createUser)
 
 //edit user
 //TODO: editovat zde i věci jako nastavení, přidání do groupy, nebo pro ně vytvořit vlastní endpoint?
-router.put('/:userId', userController.updateUser)
+router.put('/:userId', checkParameters, validateRequestSchema, userController.updateUser)
 
 //delete user
 //TODO: zkontrolovat -> admin || user sobě
-router.delete('/:userId', userController.deleteUser)
+router.delete('/:userId', checkParameters, validateRequestSchema, userController.deleteUser)
 
 export default router;

@@ -79,11 +79,7 @@ export default {
     deleteLikePost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
         const userId = parseInt(req.params.userId);
-        // Kontrola vstupů
-        if (!postId || !userId) {
-            res.status(404).json({ message: "Invalid input" });
-            return;
-        }
+
         // Kontrola existence zadaných dat
         const post_check = await postService.getPost({ id: postId })
         const user_check = await userService.getUser({ id: userId })
@@ -101,7 +97,7 @@ export default {
         const userId = parseInt(req.params.userId);
         const commentText = req.body.text;
         // Kontrola vstupů
-        if (!postId || !userId || !commentText) {
+        if (!commentText) {
             res.status(404).json({ message: "Invalid input" });
             return;
         }
@@ -131,11 +127,7 @@ export default {
     deleteCommentPost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
         const commentId = parseInt(req.params.commentId);
-        // Kontrola vstupů
-        if (!postId || !commentId) {
-            res.status(404).json({ message: "Invalid input" });
-            return;
-        }
+
         // Kontrola existence zadaných dat
         const post_check = await postService.getPost({ id: postId })
         const comment_check = await commentService.getComment({ id: commentId })
@@ -159,11 +151,7 @@ export default {
         const postId = parseInt(req.params.postId);
         const commentId = parseInt(req.params.commentId);
         const userId = parseInt(req.params.userId);
-        // Kontrola vstupů
-        if (!postId || !commentId || !userId) {
-            res.status(404).json({ message: "Invalid input" });
-            return;
-        }
+
         const comment = await commentService.editComment({ id: commentId }, { likes: { connect: { id: userId } } })
         res.status(201).json(comment)
     },
@@ -171,11 +159,7 @@ export default {
         const postId = parseInt(req.params.postId);
         const commentId = parseInt(req.params.commentId);
         const userId = parseInt(req.params.userId);
-        // Kontrola vstupů
-        if (!postId || !commentId || !userId) {
-            res.status(404).json({ message: "Invalid input" });
-            return;
-        }
+
         await commentService.editComment({ id: commentId }, { likes: { disconnect: { id: userId } } })
         res.status(204).send();
     },
