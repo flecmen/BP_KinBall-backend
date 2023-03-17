@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient, Post } from "@prisma/client";
-import Logger from "../utils/logger";
+import Logger from "../../utils/logger";
 
 const prisma = new PrismaClient();
 
@@ -13,7 +13,12 @@ export default {
                 event: true,
                 images: true,
                 likes: true,
-                comments: true,
+                comments: {
+                    include: {
+                        author: true,
+                        likes: true,
+                    }
+                },
                 survey_options: true,
                 user_notification: true
             }
@@ -28,10 +33,17 @@ export default {
     },
 
     async editPost(postWhereUniqueInput: Prisma.PostWhereUniqueInput, postUpdateInput: Prisma.PostUpdateInput) {
-        await prisma.post.update({
-            where: postWhereUniqueInput,
-            data: postUpdateInput
-        })
+        try {
+            console.log(1)
+            await prisma.post.update({
+                where: postWhereUniqueInput,
+                data: postUpdateInput
+            })
+            console.log(2)
+        } catch (err) {
+            Logger.warn('postService[editPost]: ' + err)
+            return
+        }
 
         return this.getPost({ id: postWhereUniqueInput.id })
     },

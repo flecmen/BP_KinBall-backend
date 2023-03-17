@@ -1,7 +1,10 @@
 import { Request, Response } from "express"
-import postService from "../services/post-service";
+import postService from "../services/posts/post-service";
+import userService from "../services/user-service";
+import commentService from "../services/posts/comment-service";
 import { Post, Post_comment, postType } from '@prisma/client';
 import Logger from "../utils/logger";
+import { Prisma } from "@prisma/client";
 
 // function isTruthy(post: Post): boolean {
 //     const mandatoryFields = ['type', 'heading', 'authorId'];
@@ -76,29 +79,41 @@ export default {
     deleteLikePost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
         const userId = parseInt(req.params.userId);
-        const post = await postService.editPost({ id: postId }, { likes: { disconnect: { id: userId } } })
-        res.status(204).json(post)
+        const post_check = await postService.getPost({ id: postId })
+        const user_check = await userService.getUser({ id: userId })
+        if (!post_check || !user_check) {
+            //TODO: toto nefunguje??
+            Logger.warn('postController[deleteLikePost]: Deleting not existing data');
+            res.status(204).send();
+            return;
+        } else {
+            const post = await postService.editPost({ id: postId }, { likes: { disconnect: { id: userId } } })
+            res.status(204).json(post)
+        }
+        return
     },
     commentPost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
         const userId = parseInt(req.params.userId);
-        const comment: Post_comment = req.body;
-        const post = await postService.editPost({ id: postId },
-            {
-                comments: {
-                    create: [
-                        {
-                            text: comment.text,
-                            author: {
-                                connect: {
-                                    id: userId,
-                                },
-                            },
-                        },
-                    ],
-                },
-            })
-        res.status(201).json(post)
+        const commentText: string = req.body;
+        // if (!postId || !userId || !commentText) {
+        //     res.status(400).json({ message: "Invalid input" });
+        //     return;
+        // }
+        const comment = await commentService.createComment({
+            author: {
+                connect: {
+                    id: userId
+                }
+            },
+            post: {
+                connect: {
+                    id: postId
+                }
+            },
+            text: commentText
+        })
+        res.status(201).json(comment)
     },
     deleteCommentPost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
