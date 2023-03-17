@@ -5,10 +5,11 @@ const prisma = new PrismaClient();
 
 export default {
     async getComment(post_commentWhereUniqueInput: Prisma.Post_commentWhereUniqueInput) {
-        return await prisma.post.findUnique({
+        return await prisma.post_comment.findUnique({
             where: post_commentWhereUniqueInput,
             include: {
                 author: true,
+                likes: true,
             }
         })
     },
@@ -17,5 +18,12 @@ export default {
             data
         })
         return await this.getComment({ id: comment.id })
+    },
+    async editComment(post_commentWhereUniqueInput: Prisma.Post_commentWhereUniqueInput, post_commentUpdateInput: Prisma.Post_commentUpdateInput) {
+        await prisma.post_comment.update({
+            where: post_commentWhereUniqueInput,
+            data: post_commentUpdateInput
+        })
+        return this.getComment(post_commentWhereUniqueInput)
     }
 }

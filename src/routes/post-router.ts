@@ -23,9 +23,9 @@ router.delete('/:postId/like/:userId', postController.deleteLikePost)
 // Create comment on Post
 router.post('/:postId/comment/:userId', postController.commentPost)
 // Delete comment on a Post
-router.delete('/:postId/comment/:commentId'), postController.deleteCommentPost
-// Like a comment
-router.post('/:postId/comment/:commentId/like/:userId', postController.likeComment)
+router.delete('/:postId/comment/:commentId', postController.deleteCommentPost),
+    // Like a comment
+    router.post('/:postId/comment/:commentId/like/:userId', postController.likeComment)
 // Delete comment like
 router.delete('/:postId/comment/:commentId/like/:userId', postController.deleteLikeComment)
 

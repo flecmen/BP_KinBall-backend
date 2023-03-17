@@ -79,27 +79,39 @@ export default {
     deleteLikePost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
         const userId = parseInt(req.params.userId);
+        // Kontrola vstupů
+        if (!postId || !userId) {
+            res.status(404).json({ message: "Invalid input" });
+            return;
+        }
+        // Kontrola existence zadaných dat
         const post_check = await postService.getPost({ id: postId })
         const user_check = await userService.getUser({ id: userId })
         if (!post_check || !user_check) {
-            //TODO: toto nefunguje??
-            Logger.warn('postController[deleteLikePost]: Deleting not existing data');
             res.status(204).send();
             return;
-        } else {
-            const post = await postService.editPost({ id: postId }, { likes: { disconnect: { id: userId } } })
-            res.status(204).json(post)
         }
+        const post = await postService.editPost({ id: postId }, { likes: { disconnect: { id: userId } } })
+        res.status(204).json(post)
+
         return
     },
     commentPost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
         const userId = parseInt(req.params.userId);
-        const commentText: string = req.body;
-        // if (!postId || !userId || !commentText) {
-        //     res.status(400).json({ message: "Invalid input" });
-        //     return;
-        // }
+        const commentText = req.body.text;
+        // Kontrola vstupů
+        if (!postId || !userId || !commentText) {
+            res.status(404).json({ message: "Invalid input" });
+            return;
+        }
+        // Kontrola existence zadaných dat
+        const user = await userService.getUser({ id: userId })
+        const post = await postService.getPost({ id: postId })
+        if (!user || !post) {
+            res.status(404).json({ message: "Invalid input" });
+            return;
+        }
         const comment = await commentService.createComment({
             author: {
                 connect: {
@@ -114,10 +126,23 @@ export default {
             text: commentText
         })
         res.status(201).json(comment)
+        return;
     },
     deleteCommentPost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
         const commentId = parseInt(req.params.commentId);
+        // Kontrola vstupů
+        if (!postId || !commentId) {
+            res.status(404).json({ message: "Invalid input" });
+            return;
+        }
+        // Kontrola existence zadaných dat
+        const post_check = await postService.getPost({ id: postId })
+        const comment_check = await commentService.getComment({ id: commentId })
+        if (!post_check || !comment_check) {
+            res.status(204).json({ message: "Objects don't exist" });
+            return;
+        }
         await postService.editPost({ id: postId },
             {
                 comments: {
@@ -128,21 +153,31 @@ export default {
                     ]
                 }
             })
-        res.status(204)
+        res.status(204).json({ message: "Objects don't exist" })
     },
     likeComment: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
         const commentId = parseInt(req.params.commentId);
         const userId = parseInt(req.params.userId);
-        const comment = await postService.editComment({ id: commentId }, { likes: { connect: { id: userId } } })
+        // Kontrola vstupů
+        if (!postId || !commentId || !userId) {
+            res.status(404).json({ message: "Invalid input" });
+            return;
+        }
+        const comment = await commentService.editComment({ id: commentId }, { likes: { connect: { id: userId } } })
         res.status(201).json(comment)
     },
     deleteLikeComment: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
         const commentId = parseInt(req.params.commentId);
         const userId = parseInt(req.params.userId);
-        await postService.editComment({ id: commentId }, { likes: { delete: { id: userId } } })
-        res.status(204)
+        // Kontrola vstupů
+        if (!postId || !commentId || !userId) {
+            res.status(404).json({ message: "Invalid input" });
+            return;
+        }
+        await commentService.editComment({ id: commentId }, { likes: { disconnect: { id: userId } } })
+        res.status(204).send();
     },
 
 
