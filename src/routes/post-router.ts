@@ -26,9 +26,9 @@ router.delete('/:postId/like/:userId', checkParameters, validateRequestSchema, p
 // Create comment on Post
 router.post('/:postId/comment/:userId', checkParameters, validateRequestSchema, postController.commentPost)
 // Delete comment on a Post
-router.delete('/:postId/comment/:commentId', checkParameters, validateRequestSchema, postController.deleteCommentPost),
-    // Like a comment
-    router.post('/:postId/comment/:commentId/like/:userId', checkParameters, validateRequestSchema, postController.likeComment)
+router.delete('/:postId/comment/:commentId', checkParameters, validateRequestSchema, postController.deleteCommentPost)
+// Like a comment
+router.post('/:postId/comment/:commentId/like/:userId', checkParameters, validateRequestSchema, postController.likeComment)
 // Delete comment like
 router.delete('/:postId/comment/:commentId/like/:userId', checkParameters, validateRequestSchema, postController.deleteLikeComment)
 

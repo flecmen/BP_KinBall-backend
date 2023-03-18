@@ -99,6 +99,7 @@ export default {
         // Kontrola vstupů
         if (!commentText) {
             res.status(404).json({ message: "Invalid input" });
+            Logger.warn('Comment text was not provided')
             return;
         }
         // Kontrola existence zadaných dat

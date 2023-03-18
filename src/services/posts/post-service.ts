@@ -54,7 +54,12 @@ export default {
                 event: true,
                 images: true,
                 likes: true,
-                comments: true,
+                comments: {
+                    include: {
+                        author: true,
+                        likes: true,
+                    }
+                },
                 survey_options: true,
                 user_notification: true
             }
