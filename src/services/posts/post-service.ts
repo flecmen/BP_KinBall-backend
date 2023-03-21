@@ -10,7 +10,25 @@ export default {
             include: {
                 author: true,
                 groups: true,
-                event: true,
+                event: {
+                    include: {
+                        organiser: {
+                            include: {
+                                profile_picture: true,
+                            }
+                        },
+                        players: {
+                            include: {
+                                user: {
+                                    include: {
+                                        profile_picture: true,
+                                    }
+                                },
+                            }
+                        },
+                        teams: true,
+                    }
+                },
                 images: true,
                 likes: true,
                 comments: {
@@ -51,7 +69,25 @@ export default {
             include: {
                 author: true,
                 groups: true,
-                event: true,
+                event: {
+                    include: {
+                        organiser: {
+                            include: {
+                                profile_picture: true,
+                            }
+                        },
+                        players: {
+                            include: {
+                                user: {
+                                    include: {
+                                        profile_picture: true,
+                                    }
+                                },
+                            }
+                        },
+                        teams: true,
+                    }
+                },
                 images: true,
                 likes: true,
                 comments: {

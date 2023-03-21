@@ -27,7 +27,7 @@ model User {
   //post whre user toggled to get notified for changes and updates
   posts_notification Post[]          @relation("user-post_notification")
   //events user is registered on
-  signed_in_events   Event[]         @relation("user-on-event")
+  signed_in_events   UserOnEvent[]
   //Eventy které user pořádá (trenér)
   organising_events  Event[]
   post_comments      Post_comment[]
@@ -88,7 +88,7 @@ model Post_comment {
 }
 
 model Event {
-  id               Int       @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   type             eventType
   price            Float?
   // date and time of the event taking place
@@ -101,18 +101,28 @@ model Event {
   note             String?
   address_short    String?
   // related post, used for users to sign in on the event and read its information
-  post             Post      @relation(fields: [postId], references: [id])
+  post             Post          @relation(fields: [postId], references: [id])
   //users registered on the event
-  players          User[]    @relation("user-on-event")
+  players          UserOnEvent[]
   // organiser of the event, usually trainer for a training
-  organiser        User      @relation(fields: [organiserId], references: [id])
+  organiser        User          @relation(fields: [organiserId], references: [id])
   organiserId      Int
-  postId           Int       @unique
+  postId           Int           @unique
   // registered teams for tournament
   teams            Team[]
   // lat and lng for google API (potencially)
   address_lat      String?
   address_lng      String?
+}
+
+model UserOnEvent {
+  status  UserOnEventStatus @default(going)
+  user    User              @relation(fields: [userId], references: [id])
+  userId  Int
+  event   Event             @relation(fields: [eventId], references: [id])
+  eventId Int
+
+  @@id([userId, eventId]) // composite primary key
 }
 
 model Team {
@@ -180,4 +190,11 @@ enum eventType {
   kurz_pro_mladez
   turnaj
   jednorazova_akce
+}
+
+enum UserOnEventStatus {
+  going
+  not_going
+  dont_know
+  substitue
 }

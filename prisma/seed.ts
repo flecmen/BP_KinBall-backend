@@ -8,19 +8,6 @@ import dotenv from 'dotenv';
 const prisma = new PrismaClient()
 dotenv.config();
 
-const mockUsers = {
-    userAdmin: {
-        full_name: 'David Flek',
-        email: process.env.ADMIN_EMAIL as string,
-        password: authService.hashPassword(process.env.ADMIN_PASSWORD as string),
-        role: role.admin,
-        date_of_birth: new Date(1989, 3, 11),
-        last_signed_in: new Date(),
-        facebook: 'https://facebook.com/davidflek',
-        instagram: 'https://instagram.com/davidflek',
-    }
-}
-
 
 async function main() {
     const group1 = await groupService.createGroup({
@@ -33,7 +20,21 @@ async function main() {
         color: "red-6"
     })
 
-    const userAdmin = await userService.createUser(mockUsers.userAdmin)
+    const userAdmin = await userService.createUser({
+        full_name: 'David Flek',
+        email: process.env.ADMIN_EMAIL as string,
+        password: authService.hashPassword(process.env.ADMIN_PASSWORD as string),
+        role: role.admin,
+        date_of_birth: new Date(1989, 3, 11),
+        last_signed_in: new Date(),
+        facebook: 'https://facebook.com/davidflek',
+        instagram: 'https://instagram.com/davidflek',
+        groups: {
+            connect: [
+                { id: group1?.id },
+                { id: group2?.id }]
+        },
+    })
     const user1 = await userService.createUser(
         {
             full_name: 'John Doe',
@@ -44,6 +45,11 @@ async function main() {
             last_signed_in: new Date(),
             facebook: 'https://facebook.com/johndoe',
             instagram: 'https://instagram.com/johndoe',
+            groups: {
+                connect: [
+                    { id: group1?.id }
+                ]
+            },
         }
     )
     const user2 = await userService.createUser(
@@ -54,6 +60,11 @@ async function main() {
             role: role.trener,
             date_of_birth: new Date(1985, 8, 22),
             last_signed_in: new Date(),
+            groups: {
+                connect: [
+                    { id: group1?.id }
+                ]
+            },
         }
     )
 
@@ -66,25 +77,22 @@ async function main() {
         groups: {
             connect: [{ id: group1?.id }, { id: group2?.id }]
         },
-        text: 'Integer rutrum, orci vestibulum ullamcorper ultricies, lacus quam ultricies odio, vitae placerat pede sem sit amet enim. Proin in tellus sit amet nibh dignissim sagittis. Nulla non lectus sed nisl molestie malesuada. Nullam sit amet magna in magna gravida vehicula. Mauris dictum facilisis augue. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Fusce tellus odio, dapibus id fermentum quis, suscipit id erat. '
+        text: 'Integer rutrum, orci vestibulum ullamcorper ultricies, lacus quam ultricies odio, vitae placerat pede sem sit amet enim. Proin in tellus sit amet nibh dignissim sagittis. Nulla non lectus sed nisl molestie malesuada. Nullam sit amet magna in magna gravida vehicula. Mauris dictum facilisis augue. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Fusce tellus odio, dapibus id fermentum quis, suscipit id erat. ',
+        event: {
+            create: {
+                type: eventType.trenink,
+                price: 350,
+                time: new Date('2021-05-01T10:00:00.000Z'),
+                address: "adresa nějaká",
+                description: "random description",
+                people_limit: 20,
+                substitues_limit: 5,
+                address_short: "adresa krátká",
+                organiser: { connect: { id: user1?.id } }
+            }
+        }
     }
     )
-
-    // const event1 = await prisma.event.create({
-    //     data: {
-    //         type: eventType.trenink,
-    //         price: 350,
-    //         time: new Date(),
-    //         address: "adresa nějaká",
-    //         organiser: {
-    //             connect: { id: userAdmin?.id }
-    //         },
-    //         post: {
-    //             connect: { id: post2?.id }
-    //         }
-    //     }
-    // })
-
 
 
     const post1 = await postService.createPost(
@@ -105,5 +113,3 @@ async function main() {
 
 main()
     .catch(e => { throw e })
-
-export default mockUsers;

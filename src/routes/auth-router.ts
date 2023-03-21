@@ -6,6 +6,5 @@ const router = express.Router();
 //POST
 router.post('/login', authController.login)
 
-//TODO: endpointy pro hlídání a obnovení životnosti tokenů
 
 export default router;

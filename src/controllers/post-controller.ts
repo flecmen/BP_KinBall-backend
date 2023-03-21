@@ -2,9 +2,8 @@ import { Request, Response } from "express"
 import postService from "../services/posts/post-service";
 import userService from "../services/user-service";
 import commentService from "../services/posts/comment-service";
-import { Post, Post_comment, postType } from '@prisma/client';
+import { postType } from '@prisma/client';
 import Logger from "../utils/logger";
-import { Prisma } from "@prisma/client";
 
 // function isTruthy(post: Post): boolean {
 //     const mandatoryFields = ['type', 'heading', 'authorId'];
@@ -34,7 +33,7 @@ export default {
 
         // Check if mandatory fields are present and truthy
         //TODO: check the input of post
-        if (post) {
+        if (!post) {
             res.status(400).json({
                 error: `Missing or falsy mandatory fields`
             });
@@ -51,7 +50,11 @@ export default {
             post.survey_options = { create: post.survey_options }
         }
         //Vytvoření eventu, pokud má existovat
-        if (post.event) {
+        if (post.postType === postType.event) {
+            if (!post.event) {
+                res.status(400).send('event is missing')
+            }
+            post.event.organiser = { connect: post.event.organiserId }
             post.event = { create: post.event }
         }
 
