@@ -5,6 +5,7 @@ import morganMiddleware from './middleware/morganMiddleware'
 import userRouter from './routes/user-router'
 import authRouter from './routes/auth-router'
 import postRouter from './routes/post-router'
+import eventRouter from './routes/event-router'
 import swaggerDocs from './utils/swagger';
 import jwtVerify from './middleware/jwtVerify';
 import isAdmin from './middleware/isAdmin';
@@ -30,6 +31,7 @@ app.use('/post', jwtVerify, isAdmin)
 app.use('/auth', authRouter)
 app.use('/user', userRouter)
 app.use('/post', postRouter)
+app.use('/event', eventRouter)
 app.get('/', (req: Request, res: Response) => {
     res.send('Express + TypeScript Server');
 });

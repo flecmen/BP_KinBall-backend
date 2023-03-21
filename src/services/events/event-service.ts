@@ -9,7 +9,11 @@ export default {
             where: eventWhereUniqueInput,
             include: {
                 players: {
-                    include: { profile_picture: true, }
+                    include: {
+                        user: {
+                            include: { profile_picture: true }
+                        }
+                    }
                 },
                 organiser: {
                     include: { profile_picture: true, }

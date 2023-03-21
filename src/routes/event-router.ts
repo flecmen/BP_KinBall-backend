@@ -6,7 +6,10 @@ import checkParameters from '../helpers/parametersSchema';
 const router = express.Router();
 
 
-router.get('/:eventId', checkParameters, validateRequestSchema, eventController.getEvent)
+
+
+router.get('/:eventId', checkParameters, validateRequestSchema, eventController.getEvent);
+router.put('/:eventId/addUser/:userId', checkParameters, validateRequestSchema, eventController.signUpUserOnEvent);
 
 
 export default router;
