@@ -31,7 +31,6 @@ beforeEach(async () => {
 
 
 describe('GET /', () => {
-
     it('Should return all users', async () => {
         const response = await supertest(app)
             .get('/user')

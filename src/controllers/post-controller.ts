@@ -40,7 +40,10 @@ export default {
         }
 
         //Připojení existujících skupin
-        post.groups = { connect: post.groups }
+        post.groups = {
+            connect: post.groups.map(({ id }: { id: number }) => ({ id }))
+        }
+        post.author = { connect: { id: post.author.id } }
         //přidání fotek
         if (post.images) {
             post.images = { createOrConnect: post.images }
@@ -59,7 +62,14 @@ export default {
         }
 
         const new_post = await postService.createPost(post);
-        res.status(201).json(new_post)
+        if (!new_post) {
+            res.status(400).json({
+                error: `Post could not be created`
+            });
+            return;
+        }
+
+        res.status(201).json(await postService.getPost({ id: new_post.id }))
     },
 
     editPost: async (req: Request, res: Response) => {

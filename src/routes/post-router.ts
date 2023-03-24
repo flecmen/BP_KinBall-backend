@@ -14,7 +14,7 @@ router.get('/:postId', checkParameters, validateRequestSchema, postController.ge
 router.get('/', postController.getAllPosts)
 
 //Create post
-router.put('/', postController.createPost)
+router.post('/', postController.createPost)
 //Edit post
 router.put('/:postId', checkParameters, validateRequestSchema, postController.editPost)
 
