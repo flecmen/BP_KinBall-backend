@@ -4,6 +4,7 @@ import userService from "../services/user-service";
 import commentService from "../services/posts/comment-service";
 import { Post, postType } from '@prisma/client';
 import Logger from "../utils/logger";
+import { disconnect } from "process";
 
 // function isTruthy(post: Post): boolean {
 //     const mandatoryFields = ['type', 'heading', 'authorId'];
@@ -33,9 +34,15 @@ export default {
 
         // Check if mandatory fields are present and truthy
         //TODO: check the input of post
-        if (!post.groups || post.groups.length === 0 || !post.author || !post.heading || !post.type || !post.text) {
+        if (!post.author || !post.heading || !post.type || !post.text) {
             res.status(400).json({
                 error: `Missing or falsy mandatory fields`
+            });
+            return;
+        }
+        if (!post.groups || post.groups.length === 0) {
+            res.status(400).json({
+                error: `Missing groups`
             });
             return;
         }
@@ -186,6 +193,23 @@ export default {
         await commentService.editComment({ id: commentId }, { likes: { disconnect: { id: userId } } })
         res.status(204).send();
     },
+    changeSurveyOptionValue: async (req: Request, res: Response) => {
+        const postId = parseInt(req.params.postId);
+        const userId = parseInt(req.params.userId);
+        const surveyOptionId = parseInt(req.params.survey_optionId);
+        const boolValue: boolean = JSON.parse(req.params.boolValue);
 
+        // User volbu zvolil
+        if (boolValue) {
+            await postService.editPost({ id: postId }, {
+                survey_options: { update: { where: { id: surveyOptionId }, data: { votes: { connect: { id: userId } } } } }
+            })
+        } else {// User volbu zrušil
+            await postService.editPost({ id: postId }, {
+                survey_options: { update: { where: { id: surveyOptionId }, data: { votes: { disconnect: { id: userId } } } } }
+            })
+        }
+        res.status(200).send();
+    },
 
 }

@@ -37,7 +37,11 @@ export default {
                         likes: true,
                     }
                 },
-                survey_options: true,
+                survey_options: {
+                    include: {
+                        votes: true,
+                    }
+                },
                 user_notification: true
             }
         })
@@ -96,7 +100,11 @@ export default {
                         likes: true,
                     }
                 },
-                survey_options: true,
+                survey_options: {
+                    include: {
+                        votes: true,
+                    }
+                },
                 user_notification: true
             }
         })

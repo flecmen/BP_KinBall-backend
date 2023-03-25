@@ -6,6 +6,7 @@ import checkParameters from '../helpers/parametersSchema';
 
 const router = express.Router();
 
+
 // Get post by Id
 router.get('/:postId', checkParameters, validateRequestSchema, postController.getPost)
 
@@ -31,6 +32,10 @@ router.delete('/:postId/comment/:commentId', checkParameters, validateRequestSch
 router.post('/:postId/comment/:commentId/like/:userId', checkParameters, validateRequestSchema, postController.likeComment)
 // Delete comment like
 router.delete('/:postId/comment/:commentId/like/:userId', checkParameters, validateRequestSchema, postController.deleteLikeComment)
+
+// surveys
+// change the value of user vote for survey option. :value = boolean, "true"/"false"
+router.post('/:postId/survey/:survey_optionId/user/:userId/:boolValue', checkParameters, validateRequestSchema, postController.changeSurveyOptionValue)
 
 
 
