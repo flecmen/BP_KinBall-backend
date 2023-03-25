@@ -2,7 +2,7 @@ import { Request, Response } from "express"
 import postService from "../services/posts/post-service";
 import userService from "../services/user-service";
 import commentService from "../services/posts/comment-service";
-import { postType } from '@prisma/client';
+import { Post, postType } from '@prisma/client';
 import Logger from "../utils/logger";
 
 // function isTruthy(post: Post): boolean {
@@ -33,10 +33,17 @@ export default {
 
         // Check if mandatory fields are present and truthy
         //TODO: check the input of post
-        if (!post) {
+        if (!post.groups || post.groups.length === 0 || !post.author || !post.heading || !post.type || !post.text) {
             res.status(400).json({
                 error: `Missing or falsy mandatory fields`
             });
+            return;
+        }
+        if (post.type === postType.survey && (!post.survey_options || post.survey_options.length === 0)) {
+            res.status(400).json({
+                error: 'Missing survey options'
+            });
+            return;
         }
 
         //Připojení existujících skupin
@@ -49,11 +56,13 @@ export default {
             post.images = { createOrConnect: post.images }
         }
         //vytvoření survey options
-        if (post.postType === postType.survey) {
-            post.survey_options = { create: post.survey_options }
+        if (post.type === postType.survey) {
+            post.survey_options = {
+                create: post.survey_options
+            }
         }
         //Vytvoření eventu, pokud má existovat
-        if (post.postType === postType.event) {
+        if (post.type === postType.event) {
             if (!post.event) {
                 res.status(400).send('event is missing')
             }
