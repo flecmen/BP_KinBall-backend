@@ -6,7 +6,7 @@ const checkInputs = [
     param('userId').optional().isNumeric().withMessage('User ID must be a number'),
     param('eventId').optional().isNumeric().withMessage('Event ID must be a number'),
     param('survey_optionId').optional().isNumeric().withMessage('Survey_option ID must be a number'),
-
+    param('boolValue').optional().isBoolean().withMessage('Invalid boolValue value')
 ];
 
 export default checkInputs

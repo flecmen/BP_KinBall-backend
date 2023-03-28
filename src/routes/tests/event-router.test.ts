@@ -22,7 +22,7 @@ describe('Create user reaction on event - PUT /:eventId/user/:userId/status/:use
     describe('Creating reaction and given right credentials', () => {
         it('Should return 201 and updated event', async () => {
             const response = await supertest(app)
-                .put(`/event/1/user/1/status/${UserOnEventStatus.going}/true`)
+                .post(`/event/1/user/1/status/${UserOnEventStatus.going}/true`)
                 .set('Authorization', 'Bearer ' + token)
 
             expect(response.body.players).toEqual(
@@ -36,7 +36,7 @@ describe('Create user reaction on event - PUT /:eventId/user/:userId/status/:use
     describe('Removing reaction and given right credentials', () => {
         it('Should return 201 and updated event', async () => {
             const response = await supertest(app)
-                .put(`/event/1/user/1/status/${UserOnEventStatus.going}/false`)
+                .post(`/event/1/user/1/status/${UserOnEventStatus.going}/false`)
                 .set('Authorization', 'Bearer ' + token)
 
             expect(response.body.players).not.toEqual(
@@ -50,11 +50,20 @@ describe('Create user reaction on event - PUT /:eventId/user/:userId/status/:use
     describe('Giving wrong boolean', () => {
         it('Should return 400', async () => {
             const response = await supertest(app)
-                .put(`/event/1/user/1/status/${UserOnEventStatus.going}/nejakystring`)
+                .post(`/event/1/user/1/status/${UserOnEventStatus.going}/nejakystring`)
                 .set('Authorization', 'Bearer ' + token)
 
             expect(response.status).toBe(400)
-            expect(response.body.error).toBe('Invalid boolValue value')
+        })
+    })
+    describe('Giving wrong userOnEventStatus value', () => {
+        it('Should return 400', async () => {
+            const response = await supertest(app)
+                .post(`/event/1/user/1/status/not going/true`)
+                .set('Authorization', 'Bearer ' + token)
+
+            expect(response.status).toBe(400)
+            expect(response.body.error).toBe('Invalid userOnEventStatus value')
         })
     })
 })

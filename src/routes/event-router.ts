@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.get('/:eventId', checkParameters, validateRequestSchema, eventController.getEvent);
 // change user vote (going, don't know, not going)
-router.put('/:eventId/user/:userId/status/:userOnEventStatus/:boolValue', checkParameters, validateRequestSchema, eventController.changeUserOnEventStatus);
+router.post('/:eventId/user/:userId/status/:userOnEventStatus/:boolValue', checkParameters, validateRequestSchema, eventController.changeUserOnEventStatus);
 
 
 export default router;

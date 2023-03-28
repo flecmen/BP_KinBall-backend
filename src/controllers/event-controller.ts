@@ -28,18 +28,12 @@ export default {
         const userId = parseInt(req.params.userId);
         const eventId = parseInt(req.params.eventId);
         const userOnEventStatus = req.params.userOnEventStatus as UserOnEventStatus
-        let boolValue = null;
-        try {
-            boolValue = JSON.parse(req.params.boolValue);
-        } catch (e) {
-            res.status(400).json({
-                error: `Invalid boolValue value`
-            });
-        }
 
+        // Check the boolValue
+        let boolValue = JSON.parse(req.params.boolValue);
 
         if (!(userOnEventStatus in UserOnEventStatus)) {
-            res.status(400).json({
+            return res.status(400).json({
                 error: `Invalid userOnEventStatus value`
             });
         }
