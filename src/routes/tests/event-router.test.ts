@@ -2,6 +2,7 @@ import request from 'supertest';
 import app from '../../app';
 import Logger from '../../utils/logger';
 import supertest = require('supertest');
+import { UserOnEventStatus } from '@prisma/client';
 
 let token: string;
 beforeEach(async () => {
@@ -17,11 +18,12 @@ beforeEach(async () => {
 });
 
 
-describe('PUT /event/:eventId/addUser/:userId', () => {
-    describe('Given right credentials', () => {
-        it('Should return 201, token and user', async () => {
+describe('Create user reaction on event - PUT /:eventId/user/:userId/status/:userOnEventStatus/:boolValue', () => {
+    describe('Creating reaction and given right credentials', () => {
+        it('Should return 201 and updated event', async () => {
             const response = await supertest(app)
-                .put('/event/1/addUser/1')
+                .put(`/event/1/user/1/status/${UserOnEventStatus.going}/true`)
+                .set('Authorization', 'Bearer ' + token)
 
             expect(response.body.players).toEqual(
                 expect.arrayContaining([
@@ -29,6 +31,30 @@ describe('PUT /event/:eventId/addUser/:userId', () => {
                 ])
             )
             expect(response.status).toBe(201)
+        })
+    })
+    describe('Removing reaction and given right credentials', () => {
+        it('Should return 201 and updated event', async () => {
+            const response = await supertest(app)
+                .put(`/event/1/user/1/status/${UserOnEventStatus.going}/false`)
+                .set('Authorization', 'Bearer ' + token)
+
+            expect(response.body.players).not.toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({ userId: 1 })
+                ])
+            )
+            expect(response.status).toBe(201)
+        })
+    })
+    describe('Giving wrong boolean', () => {
+        it('Should return 400', async () => {
+            const response = await supertest(app)
+                .put(`/event/1/user/1/status/${UserOnEventStatus.going}/nejakystring`)
+                .set('Authorization', 'Bearer ' + token)
+
+            expect(response.status).toBe(400)
+            expect(response.body.error).toBe('Invalid boolValue value')
         })
     })
 })
