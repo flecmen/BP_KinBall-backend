@@ -11,8 +11,7 @@ const router = express.Router();
 router.get('/:postId', checkParameters, validateRequestSchema, postController.getPost)
 
 // Get posts 
-// dev only
-router.get('/', postController.getAllPosts)
+router.get('/', postController.getPaginatedPosts)
 
 //Create post
 router.post('/', postController.createPost)

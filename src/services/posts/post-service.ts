@@ -7,44 +7,22 @@ export default {
     async getPost(postWhereUniqueInput: Prisma.PostWhereUniqueInput) {
         return await prisma.post.findUnique({
             where: postWhereUniqueInput,
-            include: {
-                author: true,
-                groups: true,
-                event: {
-                    include: {
-                        organiser: {
-                            include: {
-                                profile_picture: true,
-                            }
-                        },
-                        players: {
-                            include: {
-                                user: {
-                                    include: {
-                                        profile_picture: true,
-                                    }
-                                },
-                            }
-                        },
-                        teams: true,
-                    }
-                },
-                images: true,
-                likes: true,
-                comments: {
-                    include: {
-                        author: true,
-                        likes: true,
-                    }
-                },
-                survey_options: {
-                    include: {
-                        votes: true,
-                    }
-                },
-                user_notification: true
-            }
+            include: postIncludes
         })
+    },
+    async getPaginatedPosts(skip: number, limit: number) {
+        try {
+            const posts = await prisma.post.findMany({
+                skip,
+                take: limit,
+                orderBy: { time_of_creation: 'desc' },
+                include: postIncludes,
+            });
+            return posts;
+        } catch (e) {
+            Logger.error(`post-service.getPaginatedPosts: ${e}`)
+        }
+        return;
     },
 
     async createPost(data: Prisma.PostCreateInput) {
@@ -70,44 +48,45 @@ export default {
 
     async getAllPosts() {
         return await prisma.post.findMany({
-            include: {
-                author: true,
-                groups: true,
-                event: {
-                    include: {
-                        organiser: {
-                            include: {
-                                profile_picture: true,
-                            }
-                        },
-                        players: {
-                            include: {
-                                user: {
-                                    include: {
-                                        profile_picture: true,
-                                    }
-                                },
-                            }
-                        },
-                        teams: true,
-                    }
-                },
-                images: true,
-                likes: true,
-                comments: {
-                    include: {
-                        author: true,
-                        likes: true,
-                    }
-                },
-                survey_options: {
-                    include: {
-                        votes: true,
-                    }
-                },
-                user_notification: true
-            }
+            include: postIncludes
         })
     }
+}
 
+const postIncludes = {
+    author: true,
+    groups: true,
+    event: {
+        include: {
+            organiser: {
+                include: {
+                    profile_picture: true,
+                }
+            },
+            players: {
+                include: {
+                    user: {
+                        include: {
+                            profile_picture: true,
+                        }
+                    },
+                }
+            },
+            teams: true,
+        }
+    },
+    images: true,
+    likes: true,
+    comments: {
+        include: {
+            author: true,
+            likes: true,
+        }
+    },
+    survey_options: {
+        include: {
+            votes: true,
+        }
+    },
+    user_notification: true
 }

@@ -21,13 +21,29 @@ export default {
         const post = await postService.getPost({ id: postId });
         res.status(200).json(post)
     },
-
+    // DEV ONLY, TO BE DELETED
     getAllPosts: async (req: Request, res: Response) => {
         const posts = await postService.getAllPosts();
         res.status(202).json(posts)
     },
 
+    getPaginatedPosts: async (req: Request, res: Response) => {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const skip = (page - 1) * limit;
 
+        const posts = await postService.getPaginatedPosts(skip, limit);
+        if (posts === undefined) {
+            return res.status(400).json({
+                error: `Failed to load posts`
+            });
+        }
+        if (posts.length === 0) {
+            return res.status(204).send('No more posts available');
+        }
+        console.log(posts.map((post: Post) => post.id))
+        res.status(200).json(posts)
+    },
 
     createPost: async (req: Request, res: Response) => {
         let post = req.body;
