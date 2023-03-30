@@ -2,6 +2,7 @@ import { PrismaClient, postType, eventType, role } from '@prisma/client'
 import userService from '../src/services/user-service';
 import postService from '../src/services/posts/post-service';
 import authService from '../src/services/auth-service';
+import eventService from '../src/services/events/event-service';
 import groupService from '../src/services/group-service';
 import dotenv from 'dotenv';
 

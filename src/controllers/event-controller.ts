@@ -1,6 +1,7 @@
-import { UserOnEventStatus } from '@prisma/client';
+import { UserOnEventStatus, postType } from '@prisma/client';
 import { Request, Response } from "express"
 import eventService from "../services/events/event-service";
+import postService from '../services/posts/post-service';
 import Logger from "../utils/logger";
 import userService from "../services/user-service";
 
@@ -18,11 +19,32 @@ export default {
                 error: `Missing or falsy mandatory fields`
             });
         }
-
-        event.organiser = { connect: event.organiserId }
+        // Create a post first
+        const post = await postService.createPost({
+            heading: 'new training',
+            type: postType.event,
+            groups: { connect: event.groups.map(({ id }: { id: number }) => ({ id })) },
+            author: { connect: { id: event.organiser.id } }
+        });
+        event.organiser = { connect: { id: event.organiser.id } }
+        event.post = { connect: { id: post?.id } }
+        event.groups = { connect: event.groups.map(({ id }: { id: number }) => ({ id })) }
+        event.price = parseInt(event.price) ?? null;
+        event.people_limit = parseInt(event.people_limit) ?? null;
+        event.substitues_limit = parseInt(event.substitues_limit) ?? null;
+        if (isNaN(event.price)) event.price = 0;
+        if (isNaN(event.people_limit)) event.people_limit = 0;
+        if (isNaN(event.substitues_limit)) event.substitues_limit = 0;
 
         const new_event = await eventService.createEvent(event);
-        res.status(201).json(new_event);
+
+        if (!new_event) {
+            res.status(400).json({
+                error: `Event failed to create`
+            });
+        }
+
+        res.status(201).json(await eventService.getEvent({ id: new_event?.id }));
     },
     changeUserOnEventStatus: async (req: Request, res: Response) => {
         const userId = parseInt(req.params.userId);

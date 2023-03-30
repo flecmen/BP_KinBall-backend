@@ -24,7 +24,8 @@ export default {
                             include: { profile_picture: true }
                         }
                     }
-                }
+                },
+                groups: true,
             }
         })
     },

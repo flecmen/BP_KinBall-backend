@@ -2,7 +2,7 @@ import request from 'supertest';
 import app from '../../app';
 import Logger from '../../utils/logger';
 import supertest = require('supertest');
-import { UserOnEventStatus } from '@prisma/client';
+import { UserOnEventStatus, eventType } from '@prisma/client';
 
 let token: string;
 beforeEach(async () => {
@@ -16,6 +16,26 @@ beforeEach(async () => {
     token = response.body.token; // store token
     Logger.debug(token)
 });
+
+describe('Create event - POST /', () => {
+    describe('Given right credentials', () => {
+        it('Should return 201 and created event', async () => {
+            const response = await supertest(app)
+                .post('/event')
+                .send({
+                    description: 'Test description',
+                    time: new Date(),
+                    type: eventType.trenink,
+                    groups: [{ id: 1 }],
+                    organiser: { id: 1, full_name: 'David Flek' },
+                    address: 'Hybešova 80, Brno',
+                })
+                .set('Authorization', 'Bearer ' + token)
+
+            expect(response.status).toBe(201)
+        })
+    })
+})
 
 
 describe('Create user reaction on event - PUT /:eventId/user/:userId/status/:userOnEventStatus/:boolValue', () => {

@@ -113,6 +113,7 @@ model Event {
   // lat and lng for google API (potencially)
   address_lat      String?
   address_lng      String?
+  groups           Group[]       @relation("event_in_grup")
 }
 
 model UserOnEvent {
@@ -168,6 +169,7 @@ model Group {
   color String?
   users User[]  @relation("user_in_group")
   posts Post[]  @relation("post_in_group")
+  event Event[] @relation("event_in_grup")
 }
 
 enum role {
