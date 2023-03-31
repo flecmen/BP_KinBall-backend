@@ -54,13 +54,19 @@ export default {
 }
 
 const postIncludes = {
-    author: true,
+    author: {
+        include: {
+            profile_picture: true,
+            groups: true,
+        }
+    },
     groups: true,
     event: {
         include: {
             organiser: {
                 include: {
                     profile_picture: true,
+                    groups: true,
                 }
             },
             players: {

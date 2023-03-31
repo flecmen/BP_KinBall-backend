@@ -22,7 +22,7 @@ async function main() {
     })
     const default_profile_pic = await prisma.image.create({
         data: {
-            image_path: "avatars/avatar.jpg"
+            image_path: "avatar.jpg"
         }
     })
 
