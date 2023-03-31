@@ -20,6 +20,11 @@ async function main() {
         name: "testGroup",
         color: "red-6"
     })
+    const default_profile_pic = await prisma.image.create({
+        data: {
+            image_path: "avatars/avatar.jpg"
+        }
+    })
 
     const userAdmin = await userService.createUser({
         full_name: 'David Flek',
@@ -32,7 +37,6 @@ async function main() {
         instagram: 'https://instagram.com/davidflek',
         groups: {
             connect: [
-                { id: group1?.id },
                 { id: group2?.id }]
         },
     })
@@ -46,11 +50,6 @@ async function main() {
             last_signed_in: new Date(),
             facebook: 'https://facebook.com/johndoe',
             instagram: 'https://instagram.com/johndoe',
-            groups: {
-                connect: [
-                    { id: group1?.id }
-                ]
-            },
         }
     )
     const user2 = await userService.createUser(
@@ -61,11 +60,6 @@ async function main() {
             role: role.trener,
             date_of_birth: new Date(1985, 8, 22),
             last_signed_in: new Date(),
-            groups: {
-                connect: [
-                    { id: group1?.id }
-                ]
-            },
         }
     )
 

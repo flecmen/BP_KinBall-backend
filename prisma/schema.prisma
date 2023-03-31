@@ -36,13 +36,14 @@ model User {
   // Teams for events which requier teams (tournament)
   teams              Team[]          @relation("users-in-event-teams")
   //profile picture
-  profile_picture    Image?
+  profile_picture    Image?          @relation(fields: [imageId], references: [id])
   //images user is tagged in
   images_tagged_in   Image[]         @relation("image_tagged_users")
   // Survey options user picked
   survey_options     Survey_option[] @relation("voted_survey_option")
   // Groups (tags) user is in
   groups             Group[]         @relation("user_in_group")
+  imageId            Int?
 }
 
 model Settings {
@@ -141,11 +142,11 @@ model Album {
 }
 
 model Image {
-  id           Int    @id @default(autoincrement())
-  image_path   String
+  id         Int    @id @default(autoincrement())
+  image_path String @unique
   // user for profile pictures
-  user         User?  @relation(fields: [userId], references: [id])
-  userId       Int?   @unique
+  user       User[]
+
   // images in posts
   post         Post?  @relation(fields: [postId], references: [id])
   postId       Int?

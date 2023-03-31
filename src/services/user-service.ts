@@ -28,10 +28,17 @@ export default {
     async createUser(data: Prisma.UserCreateInput) {
         data.settings = { create: {} }
         data.reward_system = { create: {} }
-        //TODO: přidat default profile_picture
-        //přidat do defaultní skupniy "všichni"
+        data.profile_picture = data.profile_picture ?? { connect: { id: 1 } }
+        // Add user to default group "all"
+        if (data.groups?.connect) {
+            if (Array.isArray(data.groups.connect)) {
+                data.groups.connect.push({ name: 'all' })
+            }
+        } else {
+            data.groups = { connect: { name: 'all' } }
+        }
         try {
-            await prisma.user.create({
+            const user = await prisma.user.create({
                 data,
             });
         } catch (e) {
