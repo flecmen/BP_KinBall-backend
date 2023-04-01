@@ -4,7 +4,7 @@ import userService from "../services/user-service";
 import commentService from "../services/posts/comment-service";
 import { Post, postType } from '@prisma/client';
 import Logger from "../utils/logger";
-import { disconnect } from "process";
+
 
 // function isTruthy(post: Post): boolean {
 //     const mandatoryFields = ['type', 'heading', 'authorId'];
@@ -83,6 +83,10 @@ export default {
                 create: post.survey_options
             }
         }
+        // smazání survey options pokud nejde o anketu
+        if (post.type !== postType.survey) {
+            delete post.survey_options
+        }
 
         const new_post = await postService.createPost(post);
         if (!new_post) {
@@ -98,8 +102,24 @@ export default {
     editPost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
         const post = req.body;
-        //TODO: check the input of post
-        if (post) {
+        delete post.author
+        post.groups = { set: [], connect: post.groups.map(({ id }: { id: number }) => ({ id })) }
+        if (post.event) {
+            post.event = { update: post.event }
+        } else {
+            delete post.event
+        }
+        if (post.images) {
+            post.images = { connectOrCreate: post.images }
+        }
+        delete post.likes
+        delete post.comments
+        if (post.survey_options) {
+            post.survey_options = { connectOrCreate: post.survey_options }
+        }
+        post.user_notification = { connectOrCreate: post.user_notification }
+
+        if (!post) {
             res.status(400).send('something is missing')
             return;
         }
