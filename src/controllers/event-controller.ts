@@ -46,6 +46,13 @@ export default {
 
         res.status(201).json(await eventService.getEvent({ id: new_event?.id }));
     },
+    deleteEvent: async (req: Request, res: Response) => {
+        const eventId = parseInt(req.params.eventId);
+        await eventService.deleteEvent({ id: eventId });
+        res.status(204).json({
+            message: `Event deleted`
+        });
+    },
     changeUserOnEventStatus: async (req: Request, res: Response) => {
         const userId = parseInt(req.params.userId);
         const eventId = parseInt(req.params.eventId);

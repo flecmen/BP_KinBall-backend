@@ -106,6 +106,13 @@ export default {
         const new_post = await postService.editPost({ id: postId }, post);
         res.status(202).json(new_post)
     },
+    deletePost: async (req: Request, res: Response) => {
+        const postId = parseInt(req.params.postId);
+        await postService.deletePost({ id: postId });
+        res.status(204).json({
+            message: `Post deleted`
+        })
+    },
     likePost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
         const userId = parseInt(req.params.userId);

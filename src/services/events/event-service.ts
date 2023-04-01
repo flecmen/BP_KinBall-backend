@@ -41,5 +41,14 @@ export default {
             data: eventUpdateInput
         })
         return this.getEvent(eventWhereUniqueInput)
-    }
+    },
+    async deleteEvent(eventWhereUniqueInput: Prisma.EventWhereUniqueInput) {
+        try {
+            return await prisma.event.delete({
+                where: eventWhereUniqueInput
+            })
+        } catch (e) {
+            Logger.error(`event-service.deleteEvent: ${e}`)
+        }
+    },
 }

@@ -12,7 +12,7 @@ export default {
         const imagePath = path.join('static', 'images', filename);
         const image = fs.readFileSync(imagePath);
         // allow to cache the image for 1 day
-        res.setHeader('Cache-control', 'max-age=86400')
+        //res.setHeader('Cache-control', 'max-age=86400')
         res.writeHead(200, { 'Content-Type': 'image/png' });
         res.end(image, 'binary');
     },

@@ -194,6 +194,48 @@ describe('GET /post/:postId', () => {
     })
 })
 
+describe('DELETE event', () => {
+    describe('Given valid id', () => {
+        it('should return 204', async () => {
+            // first create a post to be deleted (it is already tested above)
+            const post = await supertest(app)
+                .post('/post')
+                .send({
+                    heading: 'Test post',
+                    text: 'Test post text',
+                    type: 'survey',
+                    author: { id: 1 },
+                    groups: [{ id: 1 }],
+                    survey_options: [
+                        { text: 'Otázka 1' },
+                        { text: 'Otázka 2' },
+                    ]
+                })
+                .set('Authorization', 'Bearer ' + token)
+
+            const response = await supertest(app)
+                .delete('/post/' + post.body.id)
+                .set('Authorization', 'Bearer ' + token)
+            expect(response.statusCode).toBe(204)
+
+            const getDeltedPost = await supertest(app)
+                .get('/' + post.body.id)
+                .set('Authorization', 'Bearer ' + token)
+            // check if the post is really deleted
+            expect(getDeltedPost.statusCode).toBe(404)
+        })
+    })
+
+    describe('Given invalid id', () => {
+        it('should return 204', async () => {
+            const response = await supertest(app)
+                .delete('/post/999')
+                .set('Authorization', 'Bearer ' + token)
+            expect(response.statusCode).toBe(204)
+        })
+    })
+})
+
 describe('POST /post/:postId/like/:userId', () => {
     describe('Given a valid post and valid user', () => {
         it('Should return 201 and post with added like', async () => {

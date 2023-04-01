@@ -17,6 +17,8 @@ router.get('/', postController.getPaginatedPosts)
 router.post('/', postController.createPost)
 //Edit post
 router.put('/:postId', checkParameters, validateRequestSchema, postController.editPost)
+//Delete post
+router.delete('/:postId', checkParameters, validateRequestSchema, postController.deletePost)
 
 //Interact with post
 // Create like post

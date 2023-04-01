@@ -50,7 +50,17 @@ export default {
         return await prisma.post.findMany({
             include: postIncludes
         })
-    }
+    },
+
+    async deletePost(postWhereUniqueInput: Prisma.PostWhereUniqueInput) {
+        try {
+            return await prisma.post.delete({
+                where: postWhereUniqueInput
+            })
+        } catch (e) {
+            Logger.error(`post-service.deletePost: ${e}`)
+        }
+    },
 }
 
 const postIncludes = {
