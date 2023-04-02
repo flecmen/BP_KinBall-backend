@@ -2,7 +2,9 @@ import { Request, Response } from "express"
 import { Prisma, User } from "@prisma/client";
 import userService from "../services/user-service"
 import Logger from "../utils/logger";
-import { validationResult } from "express-validator";
+import passwordGenerator from 'generate-password';
+import authService from "../services/auth-service";
+import emailController from "./email-controller";
 
 export default {
     getAllUsers: async (req: Request, res: Response) => {
@@ -21,15 +23,25 @@ export default {
         }
         res.json(user);
     },
-
+    // Creating user manually, this is NOT REGISTERING!!
     createUser: async (req: Request, res: Response) => {
-        const user = await userService.createUser(req.body)
+        let user = req.body;
+        const stringPassword = passwordGenerator.generate({
+            length: 15,
+            numbers: true,
+        })
+        Logger.debug(stringPassword)
+        user.password = authService.hashPassword(stringPassword);
+        const new_user = await userService.createUser(user)
         // is email taken?
-        if (!user) {
+        if (!new_user) {
             res.status(403).send("email taken")
             return
         }
-        res.status(201).json(user);
+        // send email with password
+        user.password = stringPassword;
+        emailController.sendNewAccountEmail(user);
+        res.status(201).json(new_user);
     },
 
     updateUser: async (req: Request, res: Response) => {
