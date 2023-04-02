@@ -30,7 +30,6 @@ export default {
             length: 15,
             numbers: true,
         })
-        Logger.debug(stringPassword)
         user.password = authService.hashPassword(stringPassword);
         const new_user = await userService.createUser(user)
         // is email taken?
@@ -46,8 +45,22 @@ export default {
 
     updateUser: async (req: Request, res: Response) => {
         const userId = parseInt(req.params.userId);
+        let user = req.body;
 
-        const updatedUser = await userService.updateUser({ id: userId }, req.body)
+        // delete groups connections and connect new
+        user.groups = { set: [], connect: user.groups.map(({ id }: { id: number }) => ({ id })) }
+        // we do not update profile_picture here
+        delete user.profile_picture;
+        // these ids would crash Prisma
+        delete user.id;
+        delete user.imageId;
+        delete user.settings.userId;
+        delete user.reward_system.userId;
+
+        user.settings = { update: user.settings }
+        user.reward_system = { update: user.reward_system }
+
+        const updatedUser = await userService.updateUser({ id: userId }, user)
         res.status(200).json(updatedUser);
     },
 
