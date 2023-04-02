@@ -8,8 +8,7 @@ import Logger from '../utils/logger';
 export default {
     generateToken(user: User) {
         const tokenPayload = {
-            userId: user.id,
-            role: user.role,
+            ...user
         };
         return jwt.sign(
             tokenPayload as object,

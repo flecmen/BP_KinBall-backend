@@ -1,4 +1,4 @@
-import { role } from '@prisma/client';
+import { User, role } from '@prisma/client';
 import { NextFunction, Request, Response } from "express";
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import config from '../config';
@@ -19,14 +19,12 @@ function getDecodedTokenFromHeaders(req: Request): { userId: number, isAdmin: bo
     return null;
 }
 function isAdmin(req: Request, res: Response, next: NextFunction) {
-    const token = req.user // Token is decoded in req.user from jwtVerify.ts
-    if (!token) {
+    if (!req.user) {
         Logger.debug('No token provided')
         return res.status(401).send('No token provided')
-    };
-    //TODO: přidat kontrolu admina
-    if (true) {
-        Logger.debug(token)
+    }
+    const token: User = req.user as User // Token is decoded to req.user from jwtVerify.ts
+    if (token.role === role.admin) {
         return next();
     } else {
     }

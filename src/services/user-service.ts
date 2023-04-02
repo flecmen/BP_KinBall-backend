@@ -57,15 +57,6 @@ export default {
         return this.getUser({ email: updatedUser.email as string })
     },
 
-    async updatePassword(userWhereUniqueInput: Prisma.UserWhereUniqueInput, password: User["password"]) {
-        return prisma.user.update({
-            where: userWhereUniqueInput,
-            data: {
-                password: password
-            }
-        })
-    },
-
     async deleteUser(userWhereUniqueInput: Prisma.UserWhereUniqueInput): Promise<void> {
         try {
             await prisma.user.delete({

@@ -46,8 +46,10 @@ router.get('/:userId', checkParameters, validateRequestSchema, userController.ge
 router.post('/', userController.createUser)
 
 //edit user
-//TODO: editovat zde i věci jako nastavení, přidání do groupy, nebo pro ně vytvořit vlastní endpoint?
 router.put('/:userId', checkParameters, validateRequestSchema, userController.updateUser)
+
+//change user password
+router.put('/changePassword/:userId', checkParameters, validateRequestSchema, userController.changePassword) // to be tested
 
 //delete user
 //TODO: zkontrolovat -> admin || user sobě
