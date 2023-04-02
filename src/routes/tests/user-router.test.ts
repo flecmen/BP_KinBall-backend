@@ -61,11 +61,11 @@ describe('GET /:userId', () => {
     })
 })
 
-describe('PUT /', () => {
+describe('POST /', () => {
     describe('Given a unique user', () => {
         it('Should return 201 and given user', async () => {
             const response = await supertest(app)
-                .put('/user').send(mockUser)
+                .post('/user').send(mockUser)
                 .set('Authorization', 'Bearer ' + token)
             expect(response.status).toBe(201)
         })
@@ -73,7 +73,7 @@ describe('PUT /', () => {
     describe('Given a used email address', () => {
         it('Should return 403', async () => {
             const response = await supertest(app)
-                .put('/user')
+                .post('/user')
                 .send({
                     full_name: 'Jane Smith',
                     email: 'davidovkyflekovky@gmail.com',
@@ -90,7 +90,7 @@ describe('PUT /', () => {
     describe('Given bad data', () => {
         it('Should return 403', async () => {
             const response = await supertest(app)
-                .put('/user')
+                .post('/user')
                 .send({
                     full_name: 'Jane Smith',
                     password: 'password456',

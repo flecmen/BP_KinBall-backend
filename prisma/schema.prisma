@@ -66,7 +66,7 @@ model Post {
   heading           String
   text              String?
   time_of_creation  DateTime        @default(now())
-  author            User            @relation(fields: [authorId], references: [id])
+  author            User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId          Int
   groups            Group[]         @relation("post_in_group")
   event             Event?
@@ -81,8 +81,8 @@ model Post_comment {
   id               Int      @id @default(autoincrement())
   time_of_creation DateTime @default(now())
   text             String
-  author           User     @relation(fields: [authorId], references: [id])
-  post             Post     @relation(fields: [postId], references: [id])
+  author           User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post             Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   likes            User[]   @relation("Post_comment_likes")
   postId           Int
   authorId         Int
@@ -106,7 +106,7 @@ model Event {
   //users registered on the event
   players          UserOnEvent[]
   // organiser of the event, usually trainer for a training
-  organiser        User          @relation(fields: [organiserId], references: [id], onDelete: NoAction)
+  organiser        User          @relation(fields: [organiserId], references: [id], onDelete: Cascade)
   organiserId      Int
   postId           Int           @unique
   // registered teams for tournament

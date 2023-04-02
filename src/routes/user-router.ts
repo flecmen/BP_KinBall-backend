@@ -43,7 +43,7 @@ router.get('/', userController.getAllUsers)
 router.get('/:userId', checkParameters, validateRequestSchema, userController.getUser)
 
 //Create user
-router.put('/', userController.createUser)
+router.post('/', userController.createUser)
 
 //edit user
 //TODO: editovat zde i věci jako nastavení, přidání do groupy, nebo pro ně vytvořit vlastní endpoint?

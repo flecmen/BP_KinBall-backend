@@ -42,6 +42,8 @@ export default {
     deleteUser: async (req: Request, res: Response) => {
         const userId = parseInt(req.params.userId);
         await userService.deleteUser({ id: userId });
-        res.status(204);
+        res.status(204).json({
+            message: `User ${userId} deleted`
+        });
     },
 }
