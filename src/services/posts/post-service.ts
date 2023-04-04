@@ -10,6 +10,18 @@ export default {
             include: postIncludes
         })
     },
+
+    async getMultiplePosts(idArray: Post['id'][]) {
+        try {
+            return await prisma.post.findMany({
+                where: { id: { in: idArray } },
+                include: postIncludes,
+            });
+        } catch (e) {
+            Logger.error(`post-service.getMultiplePosts: ${e}`)
+        }
+    },
+
     async getPaginatedPosts(skip: number, limit: number) {
         try {
             const posts = await prisma.post.findMany({
@@ -44,12 +56,6 @@ export default {
         }
 
         return this.getPost({ id: postWhereUniqueInput.id })
-    },
-
-    async getAllPosts() {
-        return await prisma.post.findMany({
-            include: postIncludes
-        })
     },
 
     async deletePost(postWhereUniqueInput: Prisma.PostWhereUniqueInput) {

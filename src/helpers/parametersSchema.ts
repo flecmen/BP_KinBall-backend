@@ -1,13 +1,15 @@
-import { check, param } from 'express-validator'
+import { param, query } from 'express-validator'
 // Middleware to check inputs
 const checkInputs = [
-    param('postId').optional().isNumeric().withMessage('Post ID must be a number'),
-    param('commentId').optional().isNumeric().withMessage('Comment ID must be a number'),
-    param('userId').optional().isNumeric().withMessage('User ID must be a number'),
-    param('eventId').optional().isNumeric().withMessage('Event ID must be a number'),
-    param('survey_optionId').optional().isNumeric().withMessage('Survey_option ID must be a number'),
-    param('boolValue').optional().isBoolean().withMessage('Invalid boolValue value'),
-    param('filename').optional().notEmpty().withMessage('Invalid filename value'),
+    param('postId').isNumeric().withMessage('Post ID must be a number').optional(),
+    param('commentId').isNumeric().withMessage('Comment ID must be a number').optional(),
+    param('userId').isNumeric().withMessage('User ID must be a number').optional(),
+    param('eventId').isNumeric().withMessage('Event ID must be a number').optional(),
+    param('survey_optionId').isNumeric().withMessage('Survey_option ID must be a number').optional(),
+    param('boolValue').isBoolean().withMessage('Invalid boolValue value').optional(),
+    param('filename').notEmpty().withMessage('Filename cannot be empty').optional(),
+    query('postIdArray.*').isNumeric().withMessage('PostIds elements must be numbers').optional(),
+
 ];
 
 export default checkInputs

@@ -194,6 +194,43 @@ describe('GET /post/:postId', () => {
     })
 })
 
+describe('GET multiple posts [/multiple]', () => {
+    describe('Given valid ids', () => {
+        it('should return 200 and wanted posts', async () => {
+            const postIds = [1, 2]
+            const response = await supertest(app)
+                .get('/post/multiple')
+                .query({ postIdArray: postIds.join(',') })
+                .set('Authorization', 'Bearer ' + token)
+            expect(response.statusCode).toBe(200)
+            expect(response.body).toEqual(expect.arrayContaining([
+                expect.objectContaining({ id: 1 }),
+                expect.objectContaining({ id: 2 })
+            ]))
+        })
+    })
+    describe('Given invalid post ids', () => {
+        it('should return 404 for an empty request', async () => {
+            const response = await supertest(app)
+                .get('/posts/multiple')
+                .set('Authorization', `Bearer ${token}`);
+
+            expect(response.statusCode).toBe(404);
+        });
+
+        it('should return 400 for non-existent post ids', async () => {
+            const postIds = [999, 888];
+            const response = await supertest(app)
+                .get('/post/multiple')
+                .query({ postIdArray: postIds.join(',') })
+                .set('Authorization', `Bearer ${token}`);
+
+            expect(response.statusCode).toBe(400);
+            expect(response.body).toHaveProperty('error');
+        });
+    });
+})
+
 describe('DELETE event', () => {
     describe('Given valid id', () => {
         it('should return 204', async () => {

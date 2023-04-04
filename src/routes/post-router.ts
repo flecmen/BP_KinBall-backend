@@ -7,10 +7,13 @@ import checkParameters from '../helpers/parametersSchema';
 const router = express.Router();
 
 
+// GET multiple posts by Ids
+router.get('/multiple', checkParameters, validateRequestSchema, postController.getMultiplePosts)
 // Get post by Id
 router.get('/:postId', checkParameters, validateRequestSchema, postController.getPost)
 
-// Get posts 
+
+// Get paginated posts 
 router.get('/', postController.getPaginatedPosts)
 
 //Create post
