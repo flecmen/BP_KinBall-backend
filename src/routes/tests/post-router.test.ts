@@ -200,7 +200,7 @@ describe('GET multiple posts [/multiple]', () => {
             const postIds = [1, 2]
             const response = await supertest(app)
                 .get('/post/multiple')
-                .query({ postIdArray: postIds.join(',') })
+                .query({ idArray: postIds.join(',') })
                 .set('Authorization', 'Bearer ' + token)
             expect(response.statusCode).toBe(200)
             expect(response.body).toEqual(expect.arrayContaining([
@@ -222,7 +222,7 @@ describe('GET multiple posts [/multiple]', () => {
             const postIds = [999, 888];
             const response = await supertest(app)
                 .get('/post/multiple')
-                .query({ postIdArray: postIds.join(',') })
+                .query({ idArray: postIds.join(',') })
                 .set('Authorization', `Bearer ${token}`);
 
             expect(response.statusCode).toBe(400);

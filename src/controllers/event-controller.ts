@@ -11,6 +11,15 @@ export default {
         const event = await eventService.getEvent({ id: eventId });
         res.status(200).json(event)
     },
+    getMultipleEvents: async (req: Request, res: Response) => {
+        // Parse post ids from query
+        const eventIds = (req.query.idArray as string).split(',').map((eventId: string) => parseInt(eventId));
+        const events = await eventService.getMultipleEvents(eventIds);
+        if (events?.length === 0) {
+            return res.status(400).json({ error: 'Failed to load events' })
+        }
+        res.status(200).json(events)
+    },
     createEvent: async (req: Request, res: Response) => {
         let event = req.body;
 

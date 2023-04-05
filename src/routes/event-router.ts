@@ -7,7 +7,9 @@ const router = express.Router();
 
 
 
-
+// GET multiple posts by Ids
+router.get('/multiple', checkParameters, validateRequestSchema)
+// Get event by Id
 router.get('/:eventId', checkParameters, validateRequestSchema, eventController.getEvent);
 // Create event
 router.post('/', eventController.createEvent);

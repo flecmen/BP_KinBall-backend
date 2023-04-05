@@ -24,7 +24,7 @@ export default {
     // example body : { posts: [1,2,3,4,5]}
     getMultiplePosts: async (req: Request, res: Response) => {
         // Parse post ids from query
-        const postIds = (req.query.postIdArray as string).split(',').map((postId: string) => parseInt(postId));
+        const postIds = (req.query.idArray as string).split(',').map((postId: string) => parseInt(postId));
         const posts = await postService.getMultiplePosts(postIds);
         if (posts?.length === 0) return res.status(400).json({ error: 'Failed to load posts' })
         res.status(200).json(posts)

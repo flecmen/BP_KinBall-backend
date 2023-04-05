@@ -10,7 +10,6 @@ export default {
             include: postIncludes
         })
     },
-
     async getMultiplePosts(idArray: Post['id'][]) {
         try {
             return await prisma.post.findMany({

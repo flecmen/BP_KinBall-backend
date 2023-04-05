@@ -19,6 +19,24 @@ beforeEach(async () => {
 
 describe('EVENT', () => {
 
+    describe('GET multiple events', () => {
+        describe('Given right credentials', () => {
+            it('Should return 200 and array of events', async () => {
+                const eventIds = [1, 2]
+                const response = await supertest(app)
+                    .get('/event/multiple')
+                    .query({ idArray: eventIds.join(',') })
+                    .set('Authorization', 'Bearer ' + token)
+
+                expect(response.status).toBe(200)
+                expect(response.body).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: 1 }),
+                    expect.objectContaining({ id: 2 })
+                ]))
+            })
+        })
+    })
+
     describe('Create event - POST /', () => {
         describe('Given right credentials', () => {
             it('Should return 201 and created event', async () => {
