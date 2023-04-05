@@ -18,7 +18,17 @@ export default {
         if (events?.length === 0) {
             return res.status(400).json({ error: 'Failed to load events' })
         }
-        res.status(200).json(events)
+        return res.status(200).json(events)
+    },
+    getMultipleEventsByPostIds: async (req: Request, res: Response) => {
+        // Parse post ids from query
+        if (req.query.idArray === undefined) return res.status(400).json({ error: 'Missing idArray' })
+        const postIds = (req.query.idArray as string).split(',').map((postId: string) => parseInt(postId));
+        const events = await eventService.getMultipleEventsByPostIds(postIds);
+        if (events?.length === 0) {
+            return res.status(400).json({ error: 'Failed to load events' })
+        }
+        return res.status(200).json(events)
     },
     createEvent: async (req: Request, res: Response) => {
         let event = req.body;

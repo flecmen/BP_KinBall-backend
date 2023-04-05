@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, Event } from "@prisma/client";
+import { Prisma, PrismaClient, Event, Post } from "@prisma/client";
 import Logger from "../../utils/logger";
 
 const prisma = new PrismaClient();
@@ -18,6 +18,16 @@ export default {
             })
         } catch (e) {
             Logger.error(`event-service.getMultipleEvents: ${e}`)
+        }
+    },
+    getMultipleEventsByPostIds: async (postIdArray: Post['id'][]) => {
+        try {
+            return await prisma.event.findMany({
+                where: { postId: { in: postIdArray } },
+                include: eventIncludes,
+            })
+        } catch (e) {
+            Logger.error(`event-service.getMultipleEventsByPostIds: ${e}`)
         }
     },
     async createEvent(data: Prisma.EventCreateInput) {

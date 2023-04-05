@@ -21,7 +21,7 @@ export default {
         const post = await postService.getPost({ id: postId });
         res.status(200).json(post)
     },
-    // example body : { posts: [1,2,3,4,5]}
+    // example params : { idArray: [1,2,3,4,5]}
     getMultiplePosts: async (req: Request, res: Response) => {
         // Parse post ids from query
         const postIds = (req.query.idArray as string).split(',').map((postId: string) => parseInt(postId));
