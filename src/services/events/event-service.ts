@@ -20,7 +20,7 @@ export default {
             Logger.error(`event-service.getMultipleEvents: ${e}`)
         }
     },
-    getMultipleEventsByPostIds: async (postIdArray: Post['id'][]) => {
+    async getMultipleEventsByPostIds(postIdArray: Post['id'][]) {
         try {
             return await prisma.event.findMany({
                 where: { postId: { in: postIdArray } },
@@ -29,6 +29,25 @@ export default {
         } catch (e) {
             Logger.error(`event-service.getMultipleEventsByPostIds: ${e}`)
         }
+    },
+    async getPaginatedCurrentEvents(skip: number, limit: number) {
+        try {
+            const events = await prisma.event.findMany({
+                where: {
+                    time: {
+                        gte: new Date()
+                    }
+                },
+                skip,
+                take: limit,
+                orderBy: { time: 'asc' },
+                include: eventIncludes,
+            })
+            return events
+        } catch (e) {
+            Logger.error(`event-service.getPaginatedEvents: ${e}`)
+        }
+        return
     },
     async createEvent(data: Prisma.EventCreateInput) {
         const event = await prisma.event.create({

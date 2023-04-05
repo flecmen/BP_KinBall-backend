@@ -30,6 +30,22 @@ export default {
         }
         return res.status(200).json(events)
     },
+    getPaginatedCurrentEvents: async (req: Request, res: Response) => {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const skip = (page - 1) * limit;
+
+        const events = await eventService.getPaginatedCurrentEvents(skip, limit);
+        if (events === undefined) {
+            return res.status(400).json({
+                error: `Failed to load events`
+            });
+        }
+        if (events.length === 0) {
+            return res.status(204).send('No more events available');
+        }
+        return res.status(200).json(events)
+    },
     createEvent: async (req: Request, res: Response) => {
         let event = req.body;
 

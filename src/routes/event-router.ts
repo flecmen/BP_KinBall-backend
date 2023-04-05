@@ -6,7 +6,8 @@ import checkParameters from '../helpers/parametersSchema';
 const router = express.Router();
 
 
-
+//GET paginated events
+router.get('/', eventController.getPaginatedCurrentEvents)
 // GET multiple events by Ids
 router.get('/multiple', checkParameters, validateRequestSchema, eventController.getMultipleEvents)
 // GET multiple events by posIds
