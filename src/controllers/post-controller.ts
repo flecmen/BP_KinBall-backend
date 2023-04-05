@@ -24,6 +24,7 @@ export default {
     // example params : { idArray: [1,2,3,4,5]}
     getMultiplePosts: async (req: Request, res: Response) => {
         // Parse post ids from query
+        if (req.query.idArray === undefined) return res.status(400).json({ error: 'Missing idArray' })
         const postIds = (req.query.idArray as string).split(',').map((postId: string) => parseInt(postId));
         const posts = await postService.getMultiplePosts(postIds);
         if (posts?.length === 0) return res.status(400).json({ error: 'Failed to load posts' })
@@ -44,7 +45,6 @@ export default {
         if (posts.length === 0) {
             return res.status(204).send('No more posts available');
         }
-        console.log(posts.map((post: Post) => post.id))
         res.status(200).json(posts)
     },
 

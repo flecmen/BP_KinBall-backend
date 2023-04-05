@@ -46,6 +46,16 @@ export default {
         }
         return res.status(200).json(events)
     },
+    getEventsByOrganiser: async (req: Request, res: Response) => {
+        const organiserId = parseInt(req.params.userId);
+        const events = await eventService.getEvents({ organiserId: organiserId });
+        if (events === undefined) {
+            return res.status(400).json({
+                error: `Failed to load events`
+            });
+        }
+        return res.status(200).json(events)
+    },
     createEvent: async (req: Request, res: Response) => {
         let event = req.body;
 

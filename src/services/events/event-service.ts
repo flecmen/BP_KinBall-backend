@@ -10,6 +10,12 @@ export default {
             include: eventIncludes
         })
     },
+    async getEvents(eventWhereInput: Prisma.EventWhereInput) {
+        return await prisma.event.findMany({
+            where: eventWhereInput,
+            include: eventIncludes
+        })
+    },
     async getMultipleEvents(idArray: Event['id'][]) {
         try {
             return await prisma.event.findMany({

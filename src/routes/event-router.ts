@@ -12,6 +12,8 @@ router.get('/', eventController.getPaginatedCurrentEvents)
 router.get('/multiple', checkParameters, validateRequestSchema, eventController.getMultipleEvents)
 // GET multiple events by posIds
 router.get('/multiple/byPostIds', checkParameters, validateRequestSchema, eventController.getMultipleEventsByPostIds)
+// GET event by organiser 
+router.get('/organiser/:userId', checkParameters, validateRequestSchema, eventController.getEventsByOrganiser)
 // Get event by Id
 router.get('/:eventId', checkParameters, validateRequestSchema, eventController.getEvent);
 // Create event
