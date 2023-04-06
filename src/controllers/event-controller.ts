@@ -98,6 +98,28 @@ export default {
             message: `Event deleted`
         });
     },
+    editEvent: async (req: Request, res: Response) => {
+        const eventId = parseInt(req.params.eventId);
+        const event = req.body;
+        // we do not update these here
+        delete event.organiser
+        delete event.players
+        delete event.teams
+        // format groups for prisma
+        event.groups = { set: [], connect: event.groups.map(({ id }: { id: number }) => ({ id })) }
+        event.price = parseInt(event.price) ?? null;
+        event.people_limit = parseInt(event.people_limit) ?? null;
+        event.substitues_limit = parseInt(event.substitues_limit) ?? null;
+
+
+        const new_event = await eventService.editEvent({ id: eventId }, event);
+        if (!new_event) {
+            res.status(400).json({
+                error: `Event failed to edit`
+            });
+        }
+        res.status(200).json(new_event)
+    },
     changeUserOnEventStatus: async (req: Request, res: Response) => {
         const userId = parseInt(req.params.userId);
         const eventId = parseInt(req.params.eventId);

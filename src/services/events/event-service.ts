@@ -56,10 +56,15 @@ export default {
         return
     },
     async createEvent(data: Prisma.EventCreateInput) {
-        const event = await prisma.event.create({
-            data
-        })
-        return await this.getEvent({ id: event.id })
+        try {
+            Logger.debug(data)
+            const event = await prisma.event.create({
+                data
+            })
+            return await this.getEvent({ id: event.id })
+        } catch (e) {
+            Logger.error(`event-service.createEvent: ${e}`)
+        }
     },
     async editEvent(eventWhereUniqueInput: Prisma.EventWhereUniqueInput, eventUpdateInput: Prisma.EventUpdateInput) {
         await prisma.event.update({
