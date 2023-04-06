@@ -5,9 +5,10 @@ import checkParameters from '../helpers/parametersSchema';
 
 const router = express.Router();
 
-
+// Get group by id
 router.get('/:group', checkParameters, validateRequestSchema, groupController.getGroup)
-
+// GET all groups
+router.get('/', groupController.getAllGroups)
 //Create group
 router.post('/', groupController.createGroup)
 //Edit group

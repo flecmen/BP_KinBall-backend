@@ -13,6 +13,13 @@ export default {
             Logger.error(`group-service.getGroup: ${e}`)
         }
     },
+    async getAllGroups() {
+        try {
+            return prisma.group.findMany();
+        } catch (e) {
+            Logger.error(`group-service.getAllGroups: ${e}`)
+        }
+    },
 
     async createGroup(groupCreateInput: Prisma.GroupCreateInput) {
         try {

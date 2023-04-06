@@ -12,13 +12,20 @@ export default {
         }
         res.status(200).json(group)
     },
+    getAllGroups: async (req: Request, res: Response) => {
+        const groups = await groupService.getAllGroups();
+        if (groups === undefined) {
+            return res.status(400).json({ error: 'Failed to load groups' });
+        }
+        res.status(200).json(groups)
+    },
     createGroup: async (req: Request, res: Response) => {
         const group: Group = req.body;
         const result = await groupService.createGroup(group);
         if (result === undefined) {
             return res.status(400).json({ error: 'Failed to create group' });
         }
-        res.status(200).json(result)
+        res.status(201).json(result)
     },
     updateGroup: async (req: Request, res: Response) => {
         const groupId = parseInt(req.params.groupId);
