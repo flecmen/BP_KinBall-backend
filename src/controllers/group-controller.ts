@@ -6,15 +6,32 @@ import Logger from "../utils/logger";
 export default {
     getGroup: async (req: Request, res: Response) => {
         const groupId = parseInt(req.params.groupId);
-        if (isNaN(groupId)) {
-            res.status(400).send('groupId is NaN');
-            return;
-        }
         const group = groupService.getGroup({ id: groupId });
-        if (group === null) {
-            res.status(404).send('group doesn\'t exist');
-            return;
+        if (group === undefined) {
+            return res.status(400).json({ error: 'group doesn\'t exist' });
         }
-        res.status(202).json(group)
+        res.status(200).json(group)
     },
+    createGroup: async (req: Request, res: Response) => {
+        const group: Group = req.body;
+        const result = await groupService.createGroup(group);
+        if (result === undefined) {
+            return res.status(400).json({ error: 'Failed to create group' });
+        }
+        res.status(200).json(result)
+    },
+    updateGroup: async (req: Request, res: Response) => {
+        const groupId = parseInt(req.params.groupId);
+        const group: Group = req.body;
+        const result = await groupService.updateGroup(groupId, group);
+        if (result === undefined) {
+            return res.status(400).json({ error: 'Failed to update group' });
+        }
+        res.status(200).json(result)
+    },
+    deleteGroup: async (req: Request, res: Response) => {
+        const groupId = parseInt(req.params.groupId);
+        await groupService.deleteGroup(groupId);
+        res.status(204).send();
+    }
 }
