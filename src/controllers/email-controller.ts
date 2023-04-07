@@ -1,5 +1,5 @@
 import emailService from "../services/email/email-service";
-import { MailOptions, MailContent } from "../services/email/email-service";
+import { MailOptions, MailContent } from "../utils/email-utils";
 import { User } from '@prisma/client';
 
 export default {
@@ -9,9 +9,13 @@ export default {
             subject: 'New Account'
         }
         const mailContent: MailContent = {
-            name: user.full_name,
-            heading: 'Log in credentials to Kin-Ball institute app',
-            body: 'login: ' + user.email + ' password: ' + user.password + '\n Your password was randomly generated, please change it right after first login.'
+            newAccountContent: {
+                full_name: user.full_name,
+                heading: 'Log in credentials to Kin-Ball institute app',
+                login: user.email,
+                password: user.password,
+                text: 'Your password was randomly generated, but please change it right after first login.'
+            }
         }
         emailService.sendMail(mailOptions, mailContent);
     }

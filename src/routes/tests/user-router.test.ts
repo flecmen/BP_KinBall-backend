@@ -5,7 +5,7 @@ import { getAdminAuthToken } from '../../utils/test-utils';
 
 const mockUser = {
     full_name: 'Jane Smith',
-    email: 'random@email.com',
+    email: 'davson.flek@seznam.cz',
     password: 'password456',
     role: role.trener,
     date_of_birth: new Date(1985, 10, 15),
