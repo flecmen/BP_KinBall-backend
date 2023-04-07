@@ -1,8 +1,7 @@
 import { Request, Response } from "express"
 import userService from "../services/user-service"
-import authService from '../services/auth-service';
+import authUtils from "../utils/auth-utils";
 import { User } from '@prisma/client';
-import Logger from "../utils/logger";
 
 export default {
     login: async (req: Request, res: Response) => {
@@ -16,7 +15,7 @@ export default {
         }
 
         // 2. compare the password to the hash stored in the database, throw 401 or 403 if credentials incorrect
-        const hashed_pw: String = authService.hashPassword(req.body.password)
+        const hashed_pw: String = authUtils.hashPassword(req.body.password)
         const user: User | null = await userService.getUser({ email: req.body.email });
 
         // kontrola existence uživatele
@@ -33,7 +32,7 @@ export default {
 
         //úspěšné přihlášení
         const response = {
-            token: authService.generateToken(user),
+            token: authUtils.generateToken(user),
             user: user
         };
 

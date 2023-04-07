@@ -1,7 +1,7 @@
 import { User, role } from '@prisma/client';
 import { NextFunction, Request, Response } from "express";
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
-import config from '../config';
+import { jwtConfig } from '../config';
 import Logger from "../utils/logger";
 
 
@@ -11,7 +11,7 @@ function getDecodedTokenFromHeaders(req: Request): { userId: number, isAdmin: bo
 
     if (authorization && authorization.split(' ')[0] === 'Bearer') {
         const token = authorization.split(' ')[1];
-        const decoded = jwt.verify(token as string, config.jwtConfig.secret as jwt.Secret) as unknown
+        const decoded = jwt.verify(token as string, jwtConfig.secret as jwt.Secret) as unknown
 
         return decoded as { userId: number, isAdmin: boolean, iat: string };
     }

@@ -1,7 +1,7 @@
 import { UserOnEventStatus, postType } from '@prisma/client';
 import { Request, Response } from "express"
-import eventService from "../services/events/event-service";
-import postService from '../services/posts/post-service';
+import eventService from "../services/event-service";
+import postService from '../services/post-service';
 import Logger from "../utils/logger";
 import userService from "../services/user-service";
 

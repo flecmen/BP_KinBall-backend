@@ -1,9 +1,8 @@
 import supertest from "supertest";
 import app from "../../app";
 import { role } from "@prisma/client";
-import Logger from "../../utils/logger";
-import dotenv from 'dotenv'
-dotenv.config()
+import { getAdminAuthToken } from '../../utils/test-utils';
+
 const mockUser = {
     full_name: 'Jane Smith',
     email: 'random@email.com',
@@ -14,19 +13,9 @@ const mockUser = {
     instagram: 'https://instagram.com/janesmith',
 }
 
-
-
 let token: string;
 beforeEach(async () => {
-    // login as admin and get token
-    const response = await supertest(app)
-        .post('/auth/login')
-        .send({
-            email: process.env.ADMIN_EMAIL as string,
-            password: process.env.ADMIN_PASSWORD as string
-        })
-    token = response.body.token; // store token
-    Logger.debug(token)
+    token = await getAdminAuthToken();
 });
 
 

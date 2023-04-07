@@ -1,9 +1,6 @@
 import supertest from "supertest";
 import app from "../../app";
-import dotenv from 'dotenv'
-dotenv.config()
-
-
+import env from "../../utils/env";
 
 describe('POST /auth/login', () => {
     describe('Given right credentials', () => {
@@ -11,8 +8,8 @@ describe('POST /auth/login', () => {
             const response = await supertest(app)
                 .post('/auth/login')
                 .send({
-                    email: process.env.ADMIN_EMAIL as string,
-                    password: process.env.ADMIN_PASSWORD as string
+                    email: env.requireEnv('ADMIN_EMAIL') as string,
+                    password: env.requireEnv('ADMIN_PASSWORD') as string
                 })
             expect(response.body.token).toBeTruthy()
         })

@@ -1,8 +1,8 @@
 import { Request, Response } from "express"
-import postService from "../services/posts/post-service";
+import postService from "../services/post-service";
 import userService from "../services/user-service";
-import commentService from "../services/posts/comment-service";
-import { Post, postType } from '@prisma/client';
+import commentService from "../services/comment-service";
+import { postType } from '@prisma/client';
 import Logger from "../utils/logger";
 
 

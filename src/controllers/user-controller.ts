@@ -1,9 +1,7 @@
 import { Request, Response } from "express"
-import { Prisma, User } from "@prisma/client";
 import userService from "../services/user-service"
-import Logger from "../utils/logger";
 import passwordGenerator from 'generate-password';
-import authService from "../services/auth-service";
+import authUtils from "../utils/auth-utils";
 import emailController from "./email-controller";
 
 export default {
@@ -30,7 +28,7 @@ export default {
             length: 15,
             numbers: true,
         })
-        user.password = authService.hashPassword(stringPassword);
+        user.password = authUtils.hashPassword(stringPassword);
         const new_user = await userService.createUser(user)
         // is email taken?
         if (!new_user) {
@@ -81,7 +79,7 @@ export default {
             res.status(400).json({ error: 'Password must be at least 8 characters long' });
             return;
         }
-        const hashedPassword = authService.hashPassword(password);
+        const hashedPassword = authUtils.hashPassword(password);
         const updatedUser = await userService.updateUser({ id: userId }, { password: hashedPassword })
         res.status(200).json(updatedUser);
     },

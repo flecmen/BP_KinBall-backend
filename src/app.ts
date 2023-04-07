@@ -1,48 +1,24 @@
 import express, { Express, Request, Response } from 'express';
-import dotenv from 'dotenv';
 import Logger from './utils/logger';
-import morganMiddleware from './middleware/morganMiddleware'
-import userRouter from './routes/user-router'
-import authRouter from './routes/auth-router'
-import postRouter from './routes/post-router'
-import groupRouter from './routes/group-router'
-import staticRouter from './routes/static-router'
-import eventRouter from './routes/event-router'
+import router from './router';
 import swaggerDocs from './utils/swagger';
-import jwtVerify from './middleware/jwtVerify';
-import isAdmin from './middleware/isAdmin';
 import cors from 'cors'
-import config from './config';
-
-//uložení .env proměnných do process.env
-dotenv.config();
+import { apiConfig } from './config';
+import env from './utils/env';
 
 const app: Express = express();
 
 app.use(express.json());
 
 //Security
-app.use(cors({ origin: config.FRONT_ROOT_URL }));
-
-// Middleware
-app.use(morganMiddleware) // Logger
-app.use('/user', jwtVerify, isAdmin)
-app.use('/post', jwtVerify, isAdmin)
+app.use(cors({ origin: apiConfig.frontRootUrl }));
 
 // Routery
-app.use('/auth', authRouter)
-app.use('/user', userRouter)
-app.use('/post', postRouter)
-app.use('/event', eventRouter)
-app.use('/group', groupRouter)
-app.use('/static', staticRouter)
-app.get('/', (req: Request, res: Response) => {
-    res.send('Express + TypeScript Server');
-});
+app.use(router)
 
-const port = process.env.PORT;
+const port = apiConfig.port;
 
-if (process.env.NODE_ENV !== 'test') {
+if (env.requireEnv('NODE_ENV') !== 'test') {
     app.listen(port, () => {
         Logger.info(`Server is running at http://localhost:${port}`);
         const numberPort = parseInt(port as string)

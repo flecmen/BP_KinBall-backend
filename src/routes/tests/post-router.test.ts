@@ -1,20 +1,12 @@
 import supertest from "supertest";
 import app from "../../app";
-import dotenv from 'dotenv'
-import { Survey_option } from "@prisma/client";
-dotenv.config()
+import { getAdminAuthToken } from '../../utils/test-utils';
 
 let token: string;
 beforeEach(async () => {
-    // login as admin and get token
-    const response = await supertest(app)
-        .post('/auth/login')
-        .send({
-            email: process.env.ADMIN_EMAIL as string,
-            password: process.env.ADMIN_PASSWORD as string
-        })
-    token = response.body.token; // store token
+    token = await getAdminAuthToken();
 });
+
 
 describe('Creating a post', () => {
     describe('POST /post', () => {

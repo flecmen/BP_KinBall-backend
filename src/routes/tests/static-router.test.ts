@@ -1,22 +1,13 @@
 import supertest from "supertest";
 import app from "../../app";
-import dotenv from 'dotenv'
 import * as fs from 'fs';
 import FormData from 'form-data'
 import { Blob } from "buffer";
-
-dotenv.config()
+import { getAdminAuthToken } from '../../utils/test-utils';
 
 let token: string;
 beforeEach(async () => {
-    // login as admin and get token
-    const response = await supertest(app)
-        .post('/auth/login')
-        .send({
-            email: process.env.ADMIN_EMAIL as string,
-            password: process.env.ADMIN_PASSWORD as string
-        })
-    token = response.body.token; // store token
+    token = await getAdminAuthToken();
 });
 
 const testImage = '337521251_1195016387844693_518157944899836968_n.jpg'
