@@ -24,6 +24,8 @@ router.delete('/:eventId', checkParameters, validateRequestSchema, eventControll
 router.put('/:eventId', checkParameters, validateRequestSchema, eventController.editEvent);
 // change user vote (going, don't know, not going)
 router.post('/:eventId/user/:userId/status/:userOnEventStatus/:boolValue', checkParameters, validateRequestSchema, eventController.changeUserOnEventStatus);
+// do the attendance
+router.post('/:eventId/attendance', checkParameters, validateRequestSchema, eventController.changeUserAttendance);
 
 
 export default router;

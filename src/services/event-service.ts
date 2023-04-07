@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, Event, Post } from "@prisma/client";
+import { Prisma, PrismaClient, Event, Post, User } from "@prisma/client";
 import Logger from "../utils/logger";
 
 const prisma = new PrismaClient();
@@ -82,6 +82,24 @@ export default {
             Logger.error(`event-service.deleteEvent: ${e}`)
         }
     },
+    async setEventAttendance(eventId: Event['id'], data: { userId: User['id'], present: boolean }[]) {
+        try {
+            return await prisma.event.update({
+                where: { id: eventId },
+                data: {
+                    players: {
+                        updateMany: data.map(({ userId, present }) => ({
+                            where: { userId },
+                            data: { present }
+                        }))
+                    }
+                },
+                include: eventIncludes
+            })
+        } catch (e) {
+            Logger.error(`event-service.setEventAttendance: ${e}`)
+        }
+    }
 }
 
 const eventIncludes = {

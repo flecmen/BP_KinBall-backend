@@ -5,7 +5,7 @@ import { getAdminAuthToken } from '../../utils/test-utils';
 
 const mockUser = {
     full_name: 'Jane Smith',
-    email: 'davson.flek@seznam.cz',
+    email: 'merunka47@post.cz',
     password: 'password456',
     role: role.trener,
     date_of_birth: new Date(1985, 10, 15),
@@ -97,13 +97,15 @@ describe('POST /', () => {
 describe('PUT /:userId', () => {
     describe('Given a valid altered user', () => {
         it('Should return 200 and correct changes', async () => {
+            //First, get a user
+            const user = await supertest(app)
+                .get('/user/5')
+                .set('Authorization', 'Bearer ' + token)
+
             const response = await supertest(app)
-                .put('/user/4')
+                .put(`/user/${user.body.id}`)
                 .send({
                     full_name: 'Jane Sanchez',
-                    email: 'random@email.com',
-                    role: role.trener,
-                    date_of_birth: new Date(1985, 10, 15),
                     facebook: 'https://facebook.com/janeSanchez',
                     instagram: 'https://instagram.com/janesmith',
                 })

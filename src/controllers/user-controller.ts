@@ -48,20 +48,26 @@ export default {
         // delete groups connections and connect new
         if (user.groups)
             user.groups = { set: [], connect: user.groups.map(({ id }: { id: number }) => ({ id })) }
-        // we do not update profile_picture here
+        // we do not update these here
         delete user.profile_picture;
+        delete user.reward_system
         // these ids would crash Prisma
         delete user.id;
         delete user.imageId;
         delete user.settings?.userId;
         delete user.reward_system?.userId;
 
+
         if (user.settings)
             user.settings = { update: user.settings }
-        if (user.reward_system)
-            user.reward_system = { update: user.reward_system }
 
         const updatedUser = await userService.updateUser({ id: userId }, user)
+
+        if (!updatedUser) {
+            res.status(400).json({
+                error: `User failed to update`
+            });
+        }
         res.status(200).json(updatedUser);
     },
 

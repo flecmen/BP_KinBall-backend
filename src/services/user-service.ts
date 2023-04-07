@@ -7,21 +7,13 @@ export default {
     async getUser(userWhereUniqueInput: Prisma.UserWhereUniqueInput) {
         return prisma.user.findUnique({
             where: userWhereUniqueInput,
-            include: {
-                settings: true,
-                reward_system: true,
-                profile_picture: true,
-                groups: true
-            }
+            include: userInclude
         })
     },
 
     async getAllUsers() {
         return await prisma.user.findMany({
-            include: {
-                groups: true,
-                profile_picture: true,
-            }
+            include: userInclude
         });
     },
 
@@ -37,34 +29,43 @@ export default {
         } else {
             data.groups = { connect: { name: 'all' } }
         }
+
         try {
-            const user = await prisma.user.create({
+            return await prisma.user.create({
                 data,
+                include: userInclude
             });
         } catch (e) {
             Logger.warn('createUser service: ' + e)
             return null
         }
-        return this.getUser({ email: data.email })
     },
 
     async updateUser(userWhereUniqueInput: Prisma.UserWhereUniqueInput, userUpdateInput: Prisma.UserUpdateInput) {
-        let updatedUser = await prisma.user.update({
+        return await prisma.user.update({
             where: userWhereUniqueInput,
-            data: userUpdateInput
+            data: userUpdateInput,
+            include: userInclude,
         })
-
-        return this.getUser({ email: updatedUser.email as string })
     },
 
-    async deleteUser(userWhereUniqueInput: Prisma.UserWhereUniqueInput): Promise<void> {
+    async deleteUser(userWhereUniqueInput: Prisma.UserWhereUniqueInput) {
         try {
             await prisma.user.delete({
                 where: userWhereUniqueInput
             })
+            return
         } catch (err) {
             Logger.error(`Failed to delete user ${userWhereUniqueInput.id}: ${err}`)
+            return
         }
-        return
+
     },
+}
+
+const userInclude = {
+    settings: true,
+    reward_system: true,
+    profile_picture: true,
+    groups: true
 }

@@ -342,8 +342,8 @@ describe('POST /post/:postId/comment/:userId', () => {
     describe('Given a invalid user', () => {
         it('Should return 404', async () => {
             const response = await supertest(app)
-                .post('/post/1/comment/20')
-                .send({ text: "Invalid comment" })
+                .post('/post/1/comment/100')
+                .send({ text: "Invalid userid" })
                 .set('Authorization', 'Bearer ' + token)
             expect(response.statusCode).toBe(404)
         })

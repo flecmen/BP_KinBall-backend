@@ -108,7 +108,7 @@ describe('EVENT', () => {
     })
 
 
-    describe('Create user reaction on event - PUT /:eventId/user/:userId/status/:userOnEventStatus/:boolValue', () => {
+    describe('Create user reaction on event - POST /:eventId/user/:userId/status/:userOnEventStatus/:boolValue', () => {
         describe('Creating reaction and given right credentials', () => {
             it('Should return 201 and updated event', async () => {
                 const response = await supertest(app)
@@ -154,6 +154,52 @@ describe('EVENT', () => {
 
                 expect(response.status).toBe(400)
                 expect(response.body.error).toBe('Invalid userOnEventStatus value')
+            })
+        })
+    })
+
+
+    describe('Set attendance [POST /event/:eventId/attendance]', () => {
+        describe('Given right credentials', () => {
+            it('Should return 200 and updated event', async () => {
+
+                const event = await supertest(app)
+                    .post('/event')
+                    .send({
+                        description: 'Test training description',
+                        time: new Date(),
+                        type: eventType.trenink,
+                        groups: [{ id: 1 }],
+                        organiser: { id: 1, full_name: 'David Flek' },
+                        address: 'Testovací 80, Brno',
+                    })
+                    .set('Authorization', 'Bearer ' + token)
+
+                const userOE1 = await supertest(app)
+                    .post(`/event/${event.body.id}/user/1/status/${UserOnEventStatus.going}/true`)
+                    .set('Authorization', 'Bearer ' + token)
+
+                const userOE2 = await supertest(app)
+                    .post(`/event/${event.body.id}/user/2/status/${UserOnEventStatus.going}/true`)
+                    .set('Authorization', 'Bearer ' + token)
+
+                const response = await supertest(app)
+                    .post(`/event/${event.body.id}/attendance`)
+                    .set('Authorization', 'Bearer ' + token)
+                    .send({
+                        data: [
+                            { userId: 1, present: true },
+                            { userId: 2, present: false }
+                        ]
+                    })
+
+                expect(response.body.players).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ userId: 1, present: true }),
+                        expect.objectContaining({ userId: 2, present: false })
+                    ])
+                )
+                expect(response.status).toBe(200)
             })
         })
     })

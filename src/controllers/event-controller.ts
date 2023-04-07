@@ -1,4 +1,4 @@
-import { UserOnEventStatus, postType } from '@prisma/client';
+import { User, UserOnEventStatus, postType } from '@prisma/client';
 import { Request, Response } from "express"
 import eventService from "../services/event-service";
 import postService from '../services/post-service';
@@ -168,6 +168,33 @@ export default {
         }
         const updated_event = await eventService.getEvent({ id: eventId })
         return res.status(201).json(updated_event);
+    },
+
+    /*
+    *   example data:
+    * req.body = {
+    * data: {userId: number, present: boolean}[]
+    * }
+    */
+    changeUserAttendance: async (req: Request, res: Response) => {
+        const eventId = parseInt(req.params.eventId);
+        const data: { userId: User['id'], present: boolean }[] = req.body.data;
+
+        if (!data) {
+            return res.status(400).json({
+                error: `Missing or falsy mandatory fields`
+            });
+        }
+
+        const eventWithUpdatedAttendance = await eventService.setEventAttendance(eventId, data);
+
+        if (!eventWithUpdatedAttendance) {
+            return res.status(400).json({
+                error: `Failed to update attendance`
+            });
+        }
+
+        return res.status(200).json(eventWithUpdatedAttendance);
     },
 
 }

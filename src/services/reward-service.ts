@@ -5,16 +5,42 @@ import rewardPoints from "../config/rewardPoints";
 
 const prisma = new PrismaClient();
 
-async function removeXp(userIds: User['id'][], xp: number) {
+async function removeXp(userIds: User['id'][], amount: number) {
     try {
-        const query = Prisma.sql`
-            UPDATE reward_system
-            SET xp = GREATEST(xp - ${xp}, 0)
-            WHERE userId IN (${Prisma.join(userIds, ', ')})
-        `;
-        await prisma.$executeRaw(query);
+        await prisma.reward_system.updateMany({
+            where: {
+                userId: {
+                    in: userIds
+                }
+            },
+            data: {
+                xp: {
+                    decrement: amount
+                }
+            }
+        });
+
+        const reward_systems = await prisma.reward_system.findMany({
+            where: {
+                userId: { in: userIds }
+            }
+        })
+
+        const negative_xps = reward_systems.filter(r => r.xp < 0)
+        if (negative_xps.length > 0) {
+            // all negative xp records are set to 0
+            await prisma.reward_system.updateMany({
+                where: {
+                    userId: { in: negative_xps.map(n => n.userId) },
+                },
+                data: {
+                    xp: { set: 0 }
+                }
+            })
+        }
+
     } catch (err) {
-        Logger.warn('rewardService[removeXp]: ' + err)
+        Logger.error('rewardService[removeXp]: ' + err)
         return
     }
 }
@@ -30,7 +56,7 @@ async function addXp(userIds: User['id'][], xp: number) {
             }
         })
     } catch (err) {
-        Logger.warn('rewardService[addXp]: ' + err)
+        Logger.error('rewardService[addXp]: ' + err)
         return
     }
 }
@@ -40,7 +66,7 @@ export default {
         try {
             await addXp([userId], rewardPoints.post.like)
         } catch (err) {
-            Logger.warn('rewardService[likeReward]: ' + err)
+            Logger.error('rewardService[likeReward]: ' + err)
             return
         }
     },
@@ -48,7 +74,7 @@ export default {
         try {
             await removeXp([userId], rewardPoints.post.like)
         } catch (err) {
-            Logger.warn('rewardService[removeLikeReward]: ' + err)
+            Logger.error('rewardService[removeLikeReward]: ' + err)
             return
         }
     },
@@ -56,7 +82,7 @@ export default {
         try {
             await addXp(userIds, rewardPoints.event.signup)
         } catch (err) {
-            Logger.warn('rewardService[addEventSignupReward]: ' + err)
+            Logger.error('rewardService[addEventSignupReward]: ' + err)
             return
         }
     },
@@ -64,7 +90,7 @@ export default {
         try {
             await removeXp(userIds, rewardPoints.event.signup)
         } catch (err) {
-            Logger.warn('rewardService[removeEventSignupReward]: ' + err)
+            Logger.error('rewardService[removeEventSignupReward]: ' + err)
             return
         }
     },
@@ -72,7 +98,7 @@ export default {
         try {
             await addXp([userId], rewardPoints.post.comment)
         } catch (err) {
-            Logger.warn('rewardService[addCommentReward]: ' + err)
+            Logger.error('rewardService[addCommentReward]: ' + err)
             return
         }
     },
@@ -80,7 +106,7 @@ export default {
         try {
             await removeXp([userId], rewardPoints.post.comment)
         } catch (err) {
-            Logger.warn('rewardService[removeCommentReward]: ' + err)
+            Logger.error('rewardService[removeCommentReward]: ' + err)
             return
         }
     },
@@ -89,7 +115,7 @@ export default {
             const userIds = (await userService.getAllUsers()).map(u => u.id)
             await removeXp(userIds, rewardPoints.punishment.monthly)
         } catch (err) {
-            Logger.warn('rewardService[monthlyPunishment]: ' + err)
+            Logger.error('rewardService[monthlyPunishment]: ' + err)
             return
         }
     },

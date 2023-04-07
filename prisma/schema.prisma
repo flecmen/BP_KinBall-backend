@@ -123,6 +123,7 @@ model UserOnEvent {
   userId  Int
   event   Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId Int
+  present Boolean?
 
   @@id([userId, eventId]) // composite primary key
 }
