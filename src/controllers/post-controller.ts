@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import postService from "../services/post-service";
 import userService from "../services/user-service";
 import commentService from "../services/comment-service";
+import rewardService from '../services/reward-service';
 import { postType } from '@prisma/client';
 import Logger from "../utils/logger";
 
@@ -140,6 +141,10 @@ export default {
         const postId = parseInt(req.params.postId);
         const userId = parseInt(req.params.userId);
         const post = await postService.editPost({ id: postId }, { likes: { connect: { id: userId } } })
+
+        // Give reaction reward
+        await rewardService.addlikeReward(userId);
+
         res.status(201).json(post)
     },
     deleteLikePost: async (req: Request, res: Response) => {
@@ -150,10 +155,13 @@ export default {
         const post_check = await postService.getPost({ id: postId })
         const user_check = await userService.getUser({ id: userId })
         if (!post_check || !user_check) {
-            res.status(204).send();
-            return;
+            return res.status(204).send();
         }
         const post = await postService.editPost({ id: postId }, { likes: { disconnect: { id: userId } } })
+
+        // Remove reaction reward
+        await rewardService.removeLikeReward(userId);
+
         res.status(204).json(post)
 
         return
@@ -177,17 +185,17 @@ export default {
         }
         const comment = await commentService.createComment({
             author: {
-                connect: {
-                    id: userId
-                }
+                connect: { id: userId }
             },
             post: {
-                connect: {
-                    id: postId
-                }
+                connect: { id: postId }
             },
             text: commentText
         })
+
+        // Give comment reward
+        await rewardService.addCommentReward(userId);
+
         res.status(201).json(comment)
         return;
     },
@@ -204,14 +212,13 @@ export default {
         }
         await postService.editPost({ id: postId },
             {
-                comments: {
-                    delete: [
-                        {
-                            id: commentId
-                        }
-                    ]
-                }
-            })
+                comments: { delete: [{ id: commentId }] }
+            }
+        )
+
+        // Remove comment reward
+        await rewardService.removeCommentReward(comment_check.author.id);
+
         res.status(204).json({ message: "Objects don't exist" })
     },
     likeComment: async (req: Request, res: Response) => {

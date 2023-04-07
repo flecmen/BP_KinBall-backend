@@ -2,8 +2,8 @@ import { UserOnEventStatus, postType } from '@prisma/client';
 import { Request, Response } from "express"
 import eventService from "../services/event-service";
 import postService from '../services/post-service';
-import Logger from "../utils/logger";
 import userService from "../services/user-service";
+import rewardService from '../services/reward-service';
 
 export default {
     getEvent: async (req: Request, res: Response) => {
@@ -147,13 +147,23 @@ export default {
                 error: `Event not found`
             });
         }
-        // Pokud už user reagoval, tak jeho rakci smažeme
-        if (event?.players.some(p => p.user.id === userId)) {
+
+        // Check if the user is already reacted on the event
+        const reaction = event?.players.find(p => p.user.id === userId)
+
+        if (reaction !== undefined) {
+            // reacted the same way, do nothing
+            if (reaction.status === userOnEventStatus && boolValue)
+                return res.status(200).json({ message: 'User already reacted with this status' });
+
+            // smažeme body, pokud minulá reakce byla 'going'
+            if (reaction.status === UserOnEventStatus.going) await rewardService.removeEventSignupReward([userId]);
+            // smažeme reakci
             await eventService.editEvent({ id: eventId }, { players: { delete: { userId_eventId: { userId: userId, eventId: eventId } } } });
         }
-        // reagoval jinak, nebo jen reakci mazal?
+        // reagoval pozitivně na jinou reakci?
         if (boolValue) {
-            // reagoval jinak, vytvoříme novou reakci
+            // reagoval, vytvoříme novou reakci
             await eventService.editEvent({ id: eventId }, { players: { create: { user: { connect: { id: userId } }, status: userOnEventStatus } } });
         }
         const updated_event = await eventService.getEvent({ id: eventId })
