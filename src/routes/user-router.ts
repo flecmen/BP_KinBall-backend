@@ -6,40 +6,9 @@ import checkParameters from '../helpers/parametersSchema';
 
 const router = express.Router();
 
-/**
- * @swagger
- * /user:
- *  get:
- *   description: Use to request all users
- *   responses:
- *    200: 
- *     description: A successful response
- */
+// GET all users
 router.get('/', userController.getAllUsers)
-
-/**
- * @swagger
- * /user/{userId}:
- *  get:
- *   description: Use to request a single user by id
- *   parameters:
- *   - in: path
- *     name: userId
- *     schema:
- *      type: number
- *     required: true
- *     description: Numeric id of the user to get
- *   responseBody:
- *    content:
- *     application/json:
- *      schema:
- *       type: object
- *       properties:
- *        id: number
- *   responses:
- *    200: 
- *     description: A successful response
- */
+// GET user by ID
 router.get('/:userId', checkParameters, validateRequestSchema, userController.getUser)
 
 //Create user
