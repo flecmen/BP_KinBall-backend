@@ -3,31 +3,46 @@ import postService from "../services/post-service";
 import userService from "../services/user-service";
 import commentService from "../services/comment-service";
 import rewardService from '../services/reward-service';
-import { postType } from '@prisma/client';
+import { postType, Group, User } from '@prisma/client';
 import Logger from "../utils/logger";
+import groupCheck from "../utils/group-check";
 
 
-// function isTruthy(post: Post): boolean {
-//     const mandatoryFields = ['type', 'heading', 'authorId'];
-//     const missingFields = mandatoryFields.filter(field => !post[field] && post[field] !== undefined && post[field] !== null);
-//     if (missingFields.length > 0) {
-//         Logger.warn(`Missing or falsy mandatory fields: ${missingFields.join(', ')}`)
-//         return false
-//     } else return true;
-// }
+
 
 export default {
     getPost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
+        const user = req.user as User & { groups: Group[] };
+
+        // get the post
         const post = await postService.getPost({ id: postId });
+
+        // check if post and req.user.group have a group in common
+        if (!groupCheck(post?.groups, user.groups))
+            return res.status(403).json({ error: 'Forbidden' })
+
         res.status(200).json(post)
     },
+
     // example params : { idArray: [1,2,3,4,5]}
     getMultiplePosts: async (req: Request, res: Response) => {
         // Parse post ids from query
-        if (req.query.idArray === undefined) return res.status(400).json({ error: 'Missing idArray' })
+        if (req.query.idArray === undefined)
+            return res.status(400).json({ error: 'Missing idArray' })
+
         const postIds = (req.query.idArray as string).split(',').map((postId: string) => parseInt(postId));
+        const user = req.user as User & { groups: Group[] };
         const posts = await postService.getMultiplePosts(postIds);
+
+        // return only posts that have a group in common with the user
+        posts?.forEach(
+            post => {
+                if (!groupCheck(post.groups, user.groups))
+                    posts.splice(posts.indexOf(post), 1)
+            }
+        )
+
         if (posts?.length === 0) return res.status(400).json({ error: 'Failed to load posts' })
         res.status(200).json(posts)
     },
@@ -36,8 +51,9 @@ export default {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
         const skip = (page - 1) * limit;
+        const user = req.user as User & { groups: Group[] };
 
-        const posts = await postService.getPaginatedPosts(skip, limit);
+        const posts = await postService.getPaginatedPosts(skip, limit, user.groups);
         if (posts === undefined) {
             return res.status(400).json({
                 error: `Failed to load posts`

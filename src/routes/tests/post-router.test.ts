@@ -223,6 +223,19 @@ describe('GET multiple posts [/multiple]', () => {
     });
 })
 
+describe('GET paginated posts [/]', () => {
+    describe('Given valid pagination data', () => {
+        it('should return 200 and paginated posts', async () => {
+            const response = await supertest(app)
+                .get('/post')
+                .query({ page: 1, limit: 5 })
+                .set('Authorization', 'Bearer ' + token)
+            expect(response.statusCode).toBe(200)
+            expect(response.body.length).toBe(5)
+        })
+    })
+})
+
 describe('DELETE event', () => {
     describe('Given valid id', () => {
         it('should return 204', async () => {
@@ -430,6 +443,42 @@ describe('DELETE /post/:postId/comment/:commentId', () => {
                 .delete('/post/20/comment/30')
                 .set('Authorization', 'Bearer ' + token)
             expect(response.statusCode).toBe(204)
+        })
+    })
+})
+
+describe('Post Authorization', () => {
+    let post = {} as Post;
+    describe('First, create a post', () => {
+        it('Should return 201', async () => {
+            const response = await supertest(app)
+                .post('/post')
+                .send({
+                    heading: 'Test post',
+                    text: 'Test post text',
+                    type: 'text',
+                    author: { id: 1 },
+                    groups: [{ id: 2 }],
+                })
+                .set('Authorization', 'Bearer ' + token)
+            expect(response.statusCode).toBe(201)
+            post = response.body
+        })
+    })
+    describe('Second, get post by id with unauthorized user token', () => {
+        it('should return 403', async () => {
+            const token = await supertest(app)
+                .post('/auth/login')
+                .send({
+                    email: 'johndoe@example.com',
+                    password: 'heslo'
+                });
+            expect(token.body.error).toBe(undefined)
+
+            const response = await supertest(app)
+                .get('/post/' + post.id)
+                .set('Authorization', 'Bearer ' + token.body.token)
+            expect(response.status).toBe(403)
         })
     })
 })

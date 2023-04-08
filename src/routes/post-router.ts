@@ -12,7 +12,6 @@ router.get('/multiple', checkParameters, validateRequestSchema, postController.g
 // Get post by Id
 router.get('/:postId', checkParameters, validateRequestSchema, postController.getPost)
 
-
 // Get paginated posts 
 router.get('/', postController.getPaginatedPosts)
 

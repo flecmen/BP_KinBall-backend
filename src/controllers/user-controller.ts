@@ -22,6 +22,7 @@ export default {
         res.json(user);
     },
     // Creating user manually, this is NOT REGISTERING!!
+    // Password is randomly generated and sent to user's email
     createUser: async (req: Request, res: Response) => {
         let user = req.body;
         const stringPassword = passwordGenerator.generate({

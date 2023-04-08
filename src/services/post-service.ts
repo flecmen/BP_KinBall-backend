@@ -18,7 +18,9 @@ export default {
     async getMultiplePosts(idArray: Post['id'][]) {
         try {
             return await prisma.post.findMany({
-                where: { id: { in: idArray } },
+                where: {
+                    id: { in: idArray },
+                },
                 include: postIncludes,
             });
         } catch (e) {
@@ -26,9 +28,18 @@ export default {
         }
     },
 
-    async getPaginatedPosts(skip: number, limit: number) {
+    async getPaginatedPosts(skip: number, limit: number, userGroups: Group[]) {
         try {
             const posts = await prisma.post.findMany({
+                where: {
+                    groups: {
+                        some: {
+                            id: {
+                                in: userGroups.map(group => group.id)
+                            }
+                        }
+                    }
+                },
                 skip,
                 take: limit,
                 orderBy: { time_of_creation: 'desc' },
