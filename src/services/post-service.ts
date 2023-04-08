@@ -1,14 +1,19 @@
 import { Prisma, PrismaClient, Post } from "@prisma/client";
 import Logger from "../utils/logger";
+import { postIncludes } from "../types/queryIncludes";
 
 const prisma = new PrismaClient();
 
 export default {
     async getPost(postWhereUniqueInput: Prisma.PostWhereUniqueInput) {
-        return await prisma.post.findUnique({
-            where: postWhereUniqueInput,
-            include: postIncludes
-        })
+        try {
+            return await prisma.post.findUnique({
+                where: postWhereUniqueInput,
+                include: postIncludes
+            })
+        } catch (e) {
+            Logger.error(`post-service.getPost: ${e}`)
+        }
     },
     async getMultiplePosts(idArray: Post['id'][]) {
         try {
@@ -37,24 +42,27 @@ export default {
     },
 
     async createPost(data: Prisma.PostCreateInput) {
-        const new_post = await prisma.post.create({
-            data,
-        });
-        return this.getPost({ id: new_post.id })
+        try {
+            return await prisma.post.create({
+                data,
+                include: postIncludes
+            });
+        } catch (e) {
+            Logger.error(`post-service.createPost: ${e}`)
+        }
     },
 
     async editPost(postWhereUniqueInput: Prisma.PostWhereUniqueInput, postUpdateInput: Prisma.PostUpdateInput) {
         try {
-            await prisma.post.update({
+            return await prisma.post.update({
                 where: postWhereUniqueInput,
-                data: postUpdateInput
+                data: postUpdateInput,
+                include: postIncludes
             })
         } catch (err) {
             Logger.warn('postService[editPost]: ' + err)
             return
         }
-
-        return this.getPost({ id: postWhereUniqueInput.id })
     },
 
     async deletePost(postWhereUniqueInput: Prisma.PostWhereUniqueInput) {
@@ -68,46 +76,3 @@ export default {
     },
 }
 
-const postIncludes = {
-    author: {
-        include: {
-            profile_picture: true,
-            groups: true,
-        }
-    },
-    groups: true,
-    event: {
-        include: {
-            organiser: {
-                include: {
-                    profile_picture: true,
-                    groups: true,
-                }
-            },
-            players: {
-                include: {
-                    user: {
-                        include: {
-                            profile_picture: true,
-                        }
-                    },
-                }
-            },
-            teams: true,
-        }
-    },
-    images: true,
-    likes: true,
-    comments: {
-        include: {
-            author: true,
-            likes: true,
-        }
-    },
-    survey_options: {
-        include: {
-            votes: true,
-        }
-    },
-    user_notification: true
-}

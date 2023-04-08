@@ -4,6 +4,7 @@ import eventService from "../services/event-service";
 import postService from '../services/post-service';
 import userService from "../services/user-service";
 import rewardService from '../services/reward-service';
+import EventAttendance from '../types/eventAttendance';
 
 export default {
     getEvent: async (req: Request, res: Response) => {
@@ -42,7 +43,7 @@ export default {
             });
         }
         if (events.length === 0) {
-            return res.status(204).send('No more events available');
+            return res.status(204).json({ message: 'No more events available' });
         }
         return res.status(200).json(events)
     },
@@ -89,7 +90,7 @@ export default {
             });
         }
 
-        res.status(201).json(await eventService.getEvent({ id: new_event?.id }));
+        res.status(201).json(new_event);
     },
     deleteEvent: async (req: Request, res: Response) => {
         const eventId = parseInt(req.params.eventId);
@@ -178,7 +179,7 @@ export default {
     */
     changeUserAttendance: async (req: Request, res: Response) => {
         const eventId = parseInt(req.params.eventId);
-        const data: { userId: User['id'], present: boolean }[] = req.body.data;
+        const data: EventAttendance[] = req.body.data;
 
         if (!data) {
             return res.status(400).json({
@@ -196,5 +197,4 @@ export default {
 
         return res.status(200).json(eventWithUpdatedAttendance);
     },
-
 }

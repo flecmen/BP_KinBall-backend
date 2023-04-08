@@ -26,22 +26,21 @@ describe('GET /static/image', () => {
 })
 
 // nefunkční test
-// describe('POST /static/image', () => {
-//     describe('Given a valid image', () => {
-//         it('should return 200 and image name', async () => {
-//             const formData = new FormData()
-//             const blob = new Blob([testImageFile], { type: 'image/png' })
-//             formData.append('image', blob)
-//             const response = await supertest(app).post('/static/image')
-//                 .set('Authorization', 'Bearer ' + token)
-//                 .set('Content-Type', 'multipart/form-data')
-//                 .send(formData)
-//             expect(response.status).toBe(200)
-//             // test jestli je image opravdu na serveru
-//             const serverImage = await supertest(app)
-//                 .get('/static/image/' + response.body)
-//                 .set('Authorization', 'Bearer ' + token)
-//             expect(serverImage.body).toEqual(testImageFile)
-//         })
-//     })
-// })
+describe('POST /static/image', () => {
+    describe('Given a valid image', () => {
+        it('should return 200 and image name', async () => {
+            const formData = new FormData()
+            const blob = new Blob([testImageFile], { type: 'image/png' })
+            const response = await supertest(app).post('/static/image')
+                .set('Authorization', 'Bearer ' + token)
+                .set('Content-Type', 'multipart/form-data')
+                .send({ image: blob })
+            expect(response.status).toBe(200)
+            // test jestli je image opravdu na serveru
+            const serverImage = await supertest(app)
+                .get('/static/image/' + response.body)
+                .set('Authorization', 'Bearer ' + token)
+            expect(serverImage.body).toEqual(testImageFile)
+        })
+    })
+})

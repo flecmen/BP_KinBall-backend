@@ -44,7 +44,7 @@ export default {
             });
         }
         if (posts.length === 0) {
-            return res.status(204).send('No more posts available');
+            return res.status(204).json({ message: 'No more posts available' });
         }
         res.status(200).json(posts)
     },
@@ -100,7 +100,7 @@ export default {
             return;
         }
 
-        res.status(201).json(await postService.getPost({ id: new_post.id }))
+        res.status(201).json(new_post)
     },
 
     editPost: async (req: Request, res: Response) => {
@@ -124,7 +124,7 @@ export default {
         post.user_notification = { connectOrCreate: post.user_notification }
 
         if (!post) {
-            res.status(400).send('something is missing')
+            res.status(400).json({ error: 'something is missing' })
             return;
         }
         const new_post = await postService.editPost({ id: postId }, post);

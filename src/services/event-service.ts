@@ -1,20 +1,30 @@
 import { Prisma, PrismaClient, Event, Post, User } from "@prisma/client";
 import Logger from "../utils/logger";
+import EventAttendance from "../types/eventAttendance";
+import { eventIncludes } from "../types/queryIncludes";
 
 const prisma = new PrismaClient();
 
 export default {
     async getEvent(eventWhereUniqueInput: Prisma.EventWhereUniqueInput) {
-        return await prisma.event.findUnique({
-            where: eventWhereUniqueInput,
-            include: eventIncludes
-        })
+        try {
+            return await prisma.event.findUnique({
+                where: eventWhereUniqueInput,
+                include: eventIncludes
+            })
+        } catch (e) {
+            Logger.error(`event-service.getEvent: ${e}`)
+        }
     },
     async getEvents(eventWhereInput: Prisma.EventWhereInput) {
-        return await prisma.event.findMany({
-            where: eventWhereInput,
-            include: eventIncludes
-        })
+        try {
+            return await prisma.event.findMany({
+                where: eventWhereInput,
+                include: eventIncludes
+            })
+        } catch (e) {
+            Logger.error(`event-service.getEvents: ${e}`)
+        }
     },
     async getMultipleEvents(idArray: Event['id'][]) {
         try {
@@ -38,7 +48,7 @@ export default {
     },
     async getPaginatedCurrentEvents(skip: number, limit: number) {
         try {
-            const events = await prisma.event.findMany({
+            return await prisma.event.findMany({
                 where: {
                     time: {
                         gte: new Date()
@@ -49,7 +59,6 @@ export default {
                 orderBy: { time: 'asc' },
                 include: eventIncludes,
             })
-            return events
         } catch (e) {
             Logger.error(`event-service.getPaginatedEvents: ${e}`)
         }
@@ -57,21 +66,24 @@ export default {
     },
     async createEvent(data: Prisma.EventCreateInput) {
         try {
-            Logger.debug(data)
-            const event = await prisma.event.create({
-                data
+            return await prisma.event.create({
+                data,
+                include: eventIncludes
             })
-            return await this.getEvent({ id: event.id })
         } catch (e) {
             Logger.error(`event-service.createEvent: ${e}`)
         }
     },
     async editEvent(eventWhereUniqueInput: Prisma.EventWhereUniqueInput, eventUpdateInput: Prisma.EventUpdateInput) {
-        await prisma.event.update({
-            where: eventWhereUniqueInput,
-            data: eventUpdateInput
-        })
-        return this.getEvent(eventWhereUniqueInput)
+        try {
+            return await prisma.event.update({
+                where: eventWhereUniqueInput,
+                data: eventUpdateInput,
+                include: eventIncludes
+            })
+        } catch (e) {
+            Logger.error(`event-service.editEvent: ${e}`)
+        }
     },
     async deleteEvent(eventWhereUniqueInput: Prisma.EventWhereUniqueInput) {
         try {
@@ -82,7 +94,7 @@ export default {
             Logger.error(`event-service.deleteEvent: ${e}`)
         }
     },
-    async setEventAttendance(eventId: Event['id'], data: { userId: User['id'], present: boolean }[]) {
+    async setEventAttendance(eventId: Event['id'], data: EventAttendance[]) {
         try {
             return await prisma.event.update({
                 where: { id: eventId },
@@ -102,23 +114,3 @@ export default {
     }
 }
 
-const eventIncludes = {
-    players: {
-        include: {
-            user: {
-                include: { profile_picture: true }
-            }
-        }
-    },
-    organiser: {
-        include: { profile_picture: true, }
-    },
-    teams: {
-        include: {
-            players: {
-                include: { profile_picture: true }
-            }
-        }
-    },
-    groups: true,
-}

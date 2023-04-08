@@ -1,28 +1,39 @@
-import { Prisma, PrismaClient, Post } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
+import { commentInclude } from "../types/queryIncludes";
+import Logger from "../utils/logger";
 
 const prisma = new PrismaClient();
 
 export default {
     async getComment(post_commentWhereUniqueInput: Prisma.Post_commentWhereUniqueInput) {
-        return await prisma.post_comment.findUnique({
-            where: post_commentWhereUniqueInput,
-            include: {
-                author: true,
-                likes: true,
-            }
-        })
+        try {
+            return await prisma.post_comment.findUnique({
+                where: post_commentWhereUniqueInput,
+                include: commentInclude
+            })
+        } catch (e) {
+            Logger.error(`comment-service.getComment: ${e}`)
+        }
     },
     async createComment(data: Prisma.Post_commentCreateInput) {
-        const comment = await prisma.post_comment.create({
-            data
-        })
-        return await this.getComment({ id: comment.id })
+        try {
+            return await prisma.post_comment.create({
+                data,
+                include: commentInclude
+            })
+        } catch (e) {
+            Logger.error(`comment-service.createComment: ${e}`)
+        }
     },
     async editComment(post_commentWhereUniqueInput: Prisma.Post_commentWhereUniqueInput, post_commentUpdateInput: Prisma.Post_commentUpdateInput) {
-        await prisma.post_comment.update({
-            where: post_commentWhereUniqueInput,
-            data: post_commentUpdateInput
-        })
-        return this.getComment(post_commentWhereUniqueInput)
+        try {
+            return await prisma.post_comment.update({
+                where: post_commentWhereUniqueInput,
+                data: post_commentUpdateInput,
+                include: commentInclude
+            })
+        } catch (e) {
+            Logger.error(`comment-service.editComment: ${e}`)
+        }
     }
 }

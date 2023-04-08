@@ -7,7 +7,7 @@ import emailController from "./email-controller";
 export default {
     getAllUsers: async (req: Request, res: Response) => {
         const users = await userService.getAllUsers();
-        if (!users) res.status(500).send('Users could not be found')
+        if (!users) res.status(500).json({ error: 'Users could not be found' })
         res.json(users);
     },
 
@@ -16,7 +16,7 @@ export default {
 
         const user = await userService.getUser({ id: userId });
         if (!user) {
-            res.status(404).send('User doesn\'t exist');
+            res.status(404).json({ error: 'User doesn\'t exist' });
             return;
         }
         res.json(user);
@@ -32,7 +32,7 @@ export default {
         const new_user = await userService.createUser(user)
         // is email taken?
         if (!new_user) {
-            res.status(403).send("email taken")
+            res.status(403).json({ error: "email taken" })
             return
         }
         // send email with password

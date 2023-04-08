@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import Logger from "../utils/logger";
+import { userInclude } from "../types/queryIncludes";
 
 const prisma = new PrismaClient();
 
@@ -63,9 +64,3 @@ export default {
     },
 }
 
-const userInclude = {
-    settings: true,
-    reward_system: true,
-    profile_picture: true,
-    groups: true
-}

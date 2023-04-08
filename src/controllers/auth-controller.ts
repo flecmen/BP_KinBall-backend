@@ -10,7 +10,7 @@ export default {
             req.body.email == undefined || req.body.email === '' ||
             req.body.password == undefined || req.body.password === ''
         ) {
-            res.status(400).json('Something is missing');
+            res.status(400).json({ error: 'Something is missing' });
             return;
         }
 
@@ -20,13 +20,13 @@ export default {
 
         // kontrola existence uživatele
         if (!user) {
-            res.status(401).json('Invalid email');
+            res.status(401).json({ error: 'Invalid email' });
             return;
         }
 
         //kontrola hesla
         if (hashed_pw !== user.password) {
-            res.status(401).json('invalid credentials')
+            res.status(401).json({ error: 'invalid credentials' })
             return;
         }
 
