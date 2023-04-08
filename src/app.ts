@@ -5,6 +5,7 @@ import swaggerDocs from './utils/swagger';
 import cors from 'cors'
 import { apiConfig } from './config';
 import env from './utils/env';
+import { scheduleAllTasks } from './scheduler';
 
 const app: Express = express();
 
@@ -15,6 +16,9 @@ app.use(cors({ origin: apiConfig.frontRootUrl }));
 
 // Routery
 app.use(router)
+
+// Scheduled tasks
+scheduleAllTasks();
 
 const port = apiConfig.port;
 

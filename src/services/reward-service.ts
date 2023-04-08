@@ -6,6 +6,8 @@ import rewardPoints from "../config/rewardPoints";
 const prisma = new PrismaClient();
 
 async function removeXp(userIds: User['id'][], amount: number) {
+    // If empty array is passed, return
+    if (userIds.length === 0) return;
     try {
         await prisma.reward_system.updateMany({
             where: {
@@ -46,6 +48,7 @@ async function removeXp(userIds: User['id'][], amount: number) {
 }
 
 async function addXp(userIds: User['id'][], xp: number) {
+    if (userIds.length === 0) return;
     try {
         await prisma.reward_system.updateMany({
             where: { userId: { in: userIds } },
@@ -116,6 +119,23 @@ export default {
             await removeXp(userIds, rewardPoints.punishment.monthly)
         } catch (err) {
             Logger.error('rewardService[monthlyPunishment]: ' + err)
+            return
+        }
+    },
+    async addAttendanceReward(userIds: User['id'][]) {
+        try {
+            await addXp(userIds, rewardPoints.event.attendance)
+        } catch (err) {
+            Logger.error('rewardService[addAttendanceReward]: ' + err)
+            return
+        }
+    },
+    async removeAttendanceReward(userIds: User['id'][]) {
+        try {
+            // users not attending event they signed up for, will get removed points for attendance and points for signup
+            await removeXp(userIds, rewardPoints.event.attendance + rewardPoints.event.signup)
+        } catch (err) {
+            Logger.error('rewardService[removeAttendanceReward]: ' + err)
             return
         }
     },

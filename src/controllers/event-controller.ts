@@ -189,11 +189,15 @@ export default {
 
         const eventWithUpdatedAttendance = await eventService.setEventAttendance(eventId, data);
 
+        // Fail check
         if (!eventWithUpdatedAttendance) {
             return res.status(400).json({
                 error: `Failed to update attendance`
             });
         }
+
+        await rewardService.addAttendanceReward(data.filter(attendance => attendance.present).map(attendance => attendance.userId));
+        await rewardService.removeAttendanceReward(data.filter(attendance => !attendance.present).map(attendance => attendance.userId));
 
         return res.status(200).json(eventWithUpdatedAttendance);
     },
