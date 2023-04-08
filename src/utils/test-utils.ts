@@ -1,10 +1,11 @@
+import { Express } from 'express';
 import supertest from 'supertest';
 import app from '../app';
 import env from './env';
 
-export const getAdminAuthToken = async () => {
+export const getAdminAuthToken = async (app1: typeof app) => {
     // login as admin and get token
-    const response = await supertest(app)
+    const response = await supertest(app1)
         .post('/auth/login')
         .send({
             email: env.requireEnv('ADMIN_EMAIL') as string,

@@ -5,7 +5,7 @@ import { getAdminAuthToken } from '../../utils/test-utils';
 
 let token: string;
 beforeEach(async () => {
-    token = await getAdminAuthToken();
+    token = await getAdminAuthToken(app);
 });
 
 describe('EVENT', () => {

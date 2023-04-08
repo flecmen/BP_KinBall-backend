@@ -1,10 +1,11 @@
 import supertest from "supertest";
 import app from "../../app";
 import { getAdminAuthToken } from '../../utils/test-utils';
+import { Post, role } from "@prisma/client";
 
 let token: string;
 beforeEach(async () => {
-    token = await getAdminAuthToken();
+    token = await getAdminAuthToken(app);
 });
 
 
@@ -181,7 +182,6 @@ describe('GET /post/:postId', () => {
                 .get('/post/1')
                 .set('Authorization', 'Bearer ' + token)
             expect(response.statusCode).toBe(200)
-            expect(response.body)
         })
     })
 })

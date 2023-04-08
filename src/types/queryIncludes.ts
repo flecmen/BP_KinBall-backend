@@ -1,3 +1,5 @@
+import { Group } from "@prisma/client"
+
 export const eventIncludes = {
     players: {
         include: {
@@ -73,4 +75,12 @@ export const userInclude = {
 export const commentInclude = {
     author: true,
     likes: true,
+}
+let userGroups: Group[] = []
+export const whereGroups = {
+    some: {
+        id: {
+            in: userGroups.map(group => group.id)
+        }
+    }
 }

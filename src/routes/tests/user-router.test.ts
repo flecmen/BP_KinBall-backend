@@ -15,7 +15,7 @@ const mockUser = {
 
 let token: string;
 beforeEach(async () => {
-    token = await getAdminAuthToken();
+    token = await getAdminAuthToken(app);
 });
 
 
