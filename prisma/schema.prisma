@@ -91,16 +91,18 @@ model Post_comment {
 model Event {
   id               Int           @id @default(autoincrement())
   type             eventType
-  price            Float?
+  price            Float?        @default(0)
   // date and time of the event taking place
   time             DateTime
+  // Proper address valid for Google maps
   address          String
+  // Short address for a short description of the place (tělocvična Mendelu)
+  address_short    String?
   description      String?
   people_limit     Int?
   substitues_limit Int?
   // note for after the event ends, filled by trainer
   note             String?
-  address_short    String?
   // related post, used for users to sign in on the event and read its information
   post             Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
   //users registered on the event

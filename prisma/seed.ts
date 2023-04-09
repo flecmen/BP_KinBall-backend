@@ -91,7 +91,10 @@ async function main() {
                 people_limit: 20,
                 substitues_limit: 5,
                 address_short: "adresa krátká",
-                organiser: { connect: { id: user1?.id } }
+                organiser: { connect: { id: user1?.id } },
+                groups: {
+                    connect: [{ id: group1?.id }, { id: group2?.id }]
+                }
             }
         }
     })
@@ -113,7 +116,10 @@ async function main() {
                 people_limit: 20,
                 substitues_limit: 5,
                 address_short: "adresa krátká",
-                organiser: { connect: { id: user1?.id } }
+                organiser: { connect: { id: user1?.id } },
+                groups: {
+                    connect: [{ id: group1?.id }, { id: group2?.id }]
+                },
             }
         }
     })
