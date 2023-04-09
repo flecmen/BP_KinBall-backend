@@ -30,14 +30,34 @@ async function removeXp(userIds: User['id'][], amount: number) {
 
         const negative_xps = reward_systems.filter(r => r.xp < 0)
         if (negative_xps.length > 0) {
-            // all negative xp records are set to 0
-            await prisma.reward_system.updateMany({
-                where: {
-                    userId: { in: negative_xps.map(n => n.userId) },
-                },
-                data: {
-                    xp: { set: 0 }
-                }
+            // all negative xp, with level 0, records are set to 0
+            const levelZeroes = negative_xps.filter(r => r.level === 0)
+            if (levelZeroes.length > 0) {
+                await prisma.reward_system.updateMany({
+                    where: {
+                        userId: { in: negative_xps.map(r => r.userId) },
+                    },
+                    data: {
+                        xp: { set: 0 }
+                    }
+                })
+            }
+
+            // all negative xp, with level > 0, are leveled down
+            negative_xps.filter(r => r.level > 0).forEach(async r => {
+                await prisma.reward_system.update({
+                    where: {
+                        userId: r.userId
+                    },
+                    data: {
+                        level: {
+                            decrement: 1
+                        },
+                        xp: {
+                            set: 100 + r.xp
+                        }
+                    }
+                })
             })
         }
 
@@ -58,6 +78,34 @@ async function addXp(userIds: User['id'][], xp: number) {
                 }
             }
         })
+
+        // Is someone levelling up?
+        const reward_systems = await prisma.reward_system.findMany({
+            where: {
+                userId: { in: userIds }
+            }
+        })
+
+        const over_100 = reward_systems.filter(r => r.xp > 99)
+        // level up all over 99 xp
+        if (over_100.length > 0) {
+            over_100.forEach(async r => {
+                await prisma.reward_system.update({
+                    where: {
+                        userId: r.userId
+                    },
+                    data: {
+                        level: {
+                            increment: 1
+                        },
+                        xp: {
+                            set: r.xp - 100
+                        }
+                    }
+                })
+            })
+        }
+
     } catch (err) {
         Logger.error('rewardService[addXp]: ' + err)
         return
