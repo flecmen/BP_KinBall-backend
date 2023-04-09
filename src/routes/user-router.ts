@@ -1,27 +1,30 @@
 import express from "express";
 import userController from "../controllers/user-controller";
-import jwtVerify from '../middleware/jwtVerify'
 import { validateRequestSchema } from "../middleware/validateRequestSchema";
 import checkParameters from '../helpers/parametersSchema';
+import { authorizeRole, authorizeUserAdminTrener, userOnly } from "../middleware/authorize";
+import { role } from "@prisma/client";
 
 const router = express.Router();
 
 // GET all users
-router.get('/', userController.getAllUsers)
+router.get('/', authorizeRole([role.trener]), userController.getAllUsers)
 // GET user by ID
 router.get('/:userId', checkParameters, validateRequestSchema, userController.getUser)
 
 //Create user
-router.post('/', userController.createUser)
+router.post('/', authorizeRole([role.trener]), userController.createUser)
 
 //edit user
-router.put('/:userId', checkParameters, validateRequestSchema, userController.updateUser)
+// only user, admin and trener can edit user
+router.put('/:userId', checkParameters, validateRequestSchema, authorizeUserAdminTrener, userController.updateUser)
 
 //change user password
-router.put('/changePassword/:userId', checkParameters, validateRequestSchema, userController.changePassword) // to be tested
+// only user himself can change his password
+router.put('/changePassword/:userId', checkParameters, validateRequestSchema, userOnly, userController.changePassword) // to be tested
 
 //delete user
-//TODO: zkontrolovat -> admin || user sobě
-router.delete('/:userId', checkParameters, validateRequestSchema, userController.deleteUser)
+// only user, admin and trener can delete user
+router.delete('/:userId', checkParameters, validateRequestSchema, authorizeUserAdminTrener, userController.deleteUser)
 
 export default router;

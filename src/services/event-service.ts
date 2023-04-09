@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, Event, Post, User } from "@prisma/client";
+import { Prisma, PrismaClient, Event, Post, Group } from "@prisma/client";
 import Logger from "../utils/logger";
 import EventAttendance from "../types/eventAttendance";
 import { eventIncludes } from "../types/queryIncludes";
@@ -46,12 +46,21 @@ export default {
             Logger.error(`event-service.getMultipleEventsByPostIds: ${e}`)
         }
     },
-    async getPaginatedCurrentEvents(skip: number, limit: number) {
+    async getPaginatedCurrentEvents(skip: number, limit: number, userGroups: Group[]) {
         try {
             return await prisma.event.findMany({
                 where: {
+                    // only upcoming events
                     time: {
                         gte: new Date()
+                    },
+                    // only in groups that the user is in
+                    groups: {
+                        some: {
+                            id: {
+                                in: userGroups.map(group => group.id)
+                            }
+                        }
                     }
                 },
                 skip,

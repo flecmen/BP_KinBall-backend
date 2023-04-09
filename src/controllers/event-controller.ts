@@ -1,26 +1,50 @@
-import { User, UserOnEventStatus, postType } from '@prisma/client';
+import { User, UserOnEventStatus, postType, Group, role } from '@prisma/client';
 import { Request, Response } from "express"
 import eventService from "../services/event-service";
 import postService from '../services/post-service';
 import userService from "../services/user-service";
 import rewardService from '../services/reward-service';
 import EventAttendance from '../types/eventAttendance';
+import groupCheck from "../utils/group-check";
 
 export default {
     getEvent: async (req: Request, res: Response) => {
         const eventId = parseInt(req.params.eventId);
         const event = await eventService.getEvent({ id: eventId });
+
+        // Check if event and user have a group in common
+        const user = req.user as User & { groups: Group[] };
+        if (!groupCheck(event?.groups, user.groups))
+            return res.status(403).json({ error: 'Forbidden' })
+
         res.status(200).json(event)
     },
+    // example params : { idArray: [1,2,3,4,5]}
     getMultipleEvents: async (req: Request, res: Response) => {
         // Parse post ids from query
+        if (req.query.idArray === undefined)
+            return res.status(400).json({ error: 'Missing idArray' })
+
         const eventIds = (req.query.idArray as string).split(',').map((eventId: string) => parseInt(eventId));
         const events = await eventService.getMultipleEvents(eventIds);
+
         if (events?.length === 0) {
             return res.status(400).json({ error: 'Failed to load events' })
         }
+
+        // return only events that have a group in common with the user
+        const user = req.user as User & { groups: Group[] };
+        events?.forEach(
+            event => {
+                if (!groupCheck(event.groups, user.groups))
+                    events.splice(events.indexOf(event), 1)
+            }
+        )
+
         return res.status(200).json(events)
     },
+
+    // This means that user loaded posts, which contain an event. Posts are already group-checked, so we don't have to check groups again
     getMultipleEventsByPostIds: async (req: Request, res: Response) => {
         // Parse post ids from query
         if (req.query.idArray === undefined) return res.status(400).json({ error: 'Missing idArray' })
@@ -31,12 +55,15 @@ export default {
         }
         return res.status(200).json(events)
     },
+
+    // Paginated upcoming events (right column on home page)
     getPaginatedCurrentEvents: async (req: Request, res: Response) => {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
         const skip = (page - 1) * limit;
+        const user = req.user as User & { groups: Group[] };
 
-        const events = await eventService.getPaginatedCurrentEvents(skip, limit);
+        const events = await eventService.getPaginatedCurrentEvents(skip, limit, user.groups);
         if (events === undefined) {
             return res.status(400).json({
                 error: `Failed to load events`
@@ -47,6 +74,8 @@ export default {
         }
         return res.status(200).json(events)
     },
+
+    // Only for trainers and admins, doesnt need group check
     getEventsByOrganiser: async (req: Request, res: Response) => {
         const organiserId = parseInt(req.params.userId);
         const events = await eventService.getEvents({ organiserId: organiserId });
@@ -67,7 +96,7 @@ export default {
         }
         // Create a post first
         const post = await postService.createPost({
-            heading: 'new training',
+            heading: 'Trénink',
             type: postType.event,
             groups: { connect: event.groups.map(({ id }: { id: number }) => ({ id })) },
             author: { connect: { id: event.organiser.id } }
@@ -92,12 +121,17 @@ export default {
 
         res.status(201).json(new_event);
     },
+
     deleteEvent: async (req: Request, res: Response) => {
         const eventId = parseInt(req.params.eventId);
-        await eventService.deleteEvent({ id: eventId });
-        res.status(204).json({
+        const event = await eventService.getEvent({ id: eventId });
+
+        // event is deleted on cascade
+        await postService.deletePost({ id: event?.postId });
+        return res.status(204).json({
             message: `Event deleted`
         });
+
     },
     editEvent: async (req: Request, res: Response) => {
         const eventId = parseInt(req.params.eventId);
@@ -121,6 +155,7 @@ export default {
         }
         res.status(200).json(new_event)
     },
+
     changeUserOnEventStatus: async (req: Request, res: Response) => {
         const userId = parseInt(req.params.userId);
         const eventId = parseInt(req.params.eventId);

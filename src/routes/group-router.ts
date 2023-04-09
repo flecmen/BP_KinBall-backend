@@ -12,7 +12,7 @@ router.get('/:group', checkParameters, validateRequestSchema, groupController.ge
 // GET all groups
 router.get('/', groupController.getAllGroups)
 //Create group
-router.post('/', groupController.createGroup)
+router.post('/', authorizeRole([role.trener]), groupController.createGroup)
 //Edit group
 router.put('/:groupId', checkParameters, validateRequestSchema, authorizeRole([role.trener]), groupController.updateGroup)
 //Delete group

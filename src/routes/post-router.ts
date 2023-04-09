@@ -1,3 +1,4 @@
+import { authorizePostAuthor } from './../middleware/authorize';
 import { check } from 'express-validator';
 import express from "express";
 import postController from "../controllers/post-controller";
@@ -17,12 +18,16 @@ router.get('/', postController.getPaginatedPosts)
 
 //Create post
 router.post('/', postController.createPost)
-//Edit post
-router.put('/:postId', checkParameters, validateRequestSchema, postController.editPost)
-//Delete post
-router.delete('/:postId', checkParameters, validateRequestSchema, postController.deletePost)
 
-//Interact with post
+// ONLY AUTHOR OR ADMIN CAN EDIT OR DELETE POST (authorizePostAuthor middleware)
+//Edit post
+router.put('/:postId', checkParameters, validateRequestSchema, authorizePostAuthor, postController.editPost)
+//Delete post
+router.delete('/:postId', checkParameters, validateRequestSchema, authorizePostAuthor, postController.deletePost)
+
+/*
+ *Interact with post
+ */
 // Create like post
 router.post('/:postId/like/:userId', checkParameters, validateRequestSchema, postController.likePost)
 // Delete like post

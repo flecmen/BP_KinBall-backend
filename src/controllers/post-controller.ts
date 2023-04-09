@@ -3,9 +3,10 @@ import postService from "../services/post-service";
 import userService from "../services/user-service";
 import commentService from "../services/comment-service";
 import rewardService from '../services/reward-service';
-import { postType, Group, User } from '@prisma/client';
+import { postType, Group, User, role } from '@prisma/client';
 import Logger from "../utils/logger";
 import groupCheck from "../utils/group-check";
+import { UnauthorizedError } from "express-jwt";
 
 
 
@@ -13,12 +14,12 @@ import groupCheck from "../utils/group-check";
 export default {
     getPost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
-        const user = req.user as User & { groups: Group[] };
 
         // get the post
         const post = await postService.getPost({ id: postId });
 
         // check if post and req.user.group have a group in common
+        const user = req.user as User & { groups: Group[] };
         if (!groupCheck(post?.groups, user.groups))
             return res.status(403).json({ error: 'Forbidden' })
 
@@ -47,10 +48,13 @@ export default {
         res.status(200).json(posts)
     },
 
+    //Group filtered
     getPaginatedPosts: async (req: Request, res: Response) => {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
         const skip = (page - 1) * limit;
+
+        // Get user groups, to filter posts by them
         const user = req.user as User & { groups: Group[] };
 
         const posts = await postService.getPaginatedPosts(skip, limit, user.groups);
@@ -122,7 +126,12 @@ export default {
     editPost: async (req: Request, res: Response) => {
         const postId = parseInt(req.params.postId);
         const post = req.body;
+
+        // We dont edit these here
         delete post.author
+        delete post.likes
+        delete post.comments
+
         post.groups = { set: [], connect: post.groups.map(({ id }: { id: number }) => ({ id })) }
         if (post.event) {
             post.event = { update: post.event }
@@ -132,8 +141,7 @@ export default {
         if (post.images) {
             post.images = { connectOrCreate: post.images }
         }
-        delete post.likes
-        delete post.comments
+
         if (post.survey_options) {
             post.survey_options = { connectOrCreate: post.survey_options }
         }
@@ -144,6 +152,8 @@ export default {
             return;
         }
         const new_post = await postService.editPost({ id: postId }, post);
+        if (!new_post) return res.status(400).json({ error: `Post could not be edited` });
+
         res.status(202).json(new_post)
     },
     deletePost: async (req: Request, res: Response) => {
@@ -221,11 +231,16 @@ export default {
 
         // Kontrola existence zadaných dat
         const post_check = await postService.getPost({ id: postId })
-        const comment_check = await commentService.getComment({ id: commentId })
-        if (!post_check || !comment_check) {
+        const comment = await commentService.getComment({ id: commentId })
+        if (!post_check || !comment) {
             res.status(204).json({ message: "Objects don't exist" });
             return;
         }
+
+        // komentář může mazat jen autor nebo admin
+        const user = req.user as User;
+        if (comment.author.id !== user.id && user.role !== role.admin) res.status(403).json({ message: "Forbidden" });
+
         await postService.editPost({ id: postId },
             {
                 comments: { delete: [{ id: commentId }] }
@@ -233,7 +248,7 @@ export default {
         )
 
         // Remove comment reward
-        await rewardService.removeCommentReward(comment_check.author.id);
+        await rewardService.removeCommentReward(comment.author.id);
 
         res.status(204).json({ message: "Objects don't exist" })
     },
