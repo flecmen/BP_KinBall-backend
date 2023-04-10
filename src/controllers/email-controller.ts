@@ -1,6 +1,7 @@
 import emailService from "../services/email/email-service";
 import { MailOptions, MailContent } from "../utils/email-utils";
 import { User } from '@prisma/client';
+import env from "../utils/env";
 
 export default {
     async sendNewAccountEmail(user: User) {
@@ -17,7 +18,10 @@ export default {
                 text: 'Your password was randomly generated, but please change it right after first login.'
             }
         }
-        emailService.sendMail(mailOptions, mailContent);
+        // Don't send emails in test environment
+        if (env.requireEnv('NODE_ENV') !== 'test')
+            emailService.sendMail(mailOptions, mailContent);
+
     }
 }
 

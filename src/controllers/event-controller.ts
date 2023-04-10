@@ -1,4 +1,4 @@
-import { User, UserOnEventStatus, postType, Group, role } from '@prisma/client';
+import { User, UserOnEventStatus, postType, Group, role, Event, Prisma } from '@prisma/client';
 import { Request, Response } from "express"
 import eventService from "../services/event-service";
 import postService from '../services/post-service';
@@ -6,6 +6,7 @@ import userService from "../services/user-service";
 import rewardService from '../services/reward-service';
 import EventAttendance from '../types/eventAttendance';
 import groupCheck from "../utils/group-check";
+import Logger from '../utils/logger';
 
 export default {
     getEvent: async (req: Request, res: Response) => {
@@ -76,9 +77,23 @@ export default {
     },
 
     // Only for trainers and admins, doesnt need group check
+    // Filter can be null | today | future | past
     getEventsByOrganiser: async (req: Request, res: Response) => {
         const organiserId = parseInt(req.params.userId);
-        const events = await eventService.getEvents({ organiserId: organiserId });
+        const filter = req.params.filter as string | undefined;
+        let eventWhereInput: Prisma.EventWhereInput = {}
+        Logger.debug(`Filter: ${filter}`)
+        if (filter) {
+            switch (filter) {
+                case ('today'): eventWhereInput = { organiserId: organiserId, time: { gte: new Date(new Date().setHours(0, 0, 0, 0)), lte: new Date(new Date().setHours(23, 59, 59, 999)) } }
+                case ('future'): eventWhereInput = { organiserId: organiserId, time: { gte: new Date() } }
+                case ('past'): eventWhereInput = { organiserId: organiserId, time: { lte: new Date() } }
+            }
+        } else {
+            eventWhereInput = { organiserId: organiserId }
+        }
+        const events = await eventService.getEvents(eventWhereInput);
+
         if (events === undefined) {
             return res.status(400).json({
                 error: `Failed to load events`
