@@ -18,7 +18,7 @@ npm run dev
 ```bash
 
 npx prisma db push
-npx prisma generete
+npx prisma generate
 npx prisma db seed
 ```
 
