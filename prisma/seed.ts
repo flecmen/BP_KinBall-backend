@@ -13,6 +13,10 @@ async function main() {
         name: "all",
         color: "grey"
     })
+    const group3 = await groupService.createGroup({
+        name: "newcommers",
+        color: "green"
+    })
 
     const group2 = await groupService.createGroup({
         name: "testGroup",

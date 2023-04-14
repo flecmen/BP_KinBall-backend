@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import userService from "../services/user-service"
 import authUtils from "../utils/auth-utils";
-import { User } from '@prisma/client';
+import { User, role } from '@prisma/client';
 
 export default {
     login: async (req: Request, res: Response) => {
@@ -64,6 +64,8 @@ export default {
 
         // add to newcommer group
         user.groups = { connect: [{ name: 'newcommers' }] }
+
+        user.role = role.clen_spolku_hrac
 
         // Create user
         const new_user = await userService.createUser(user)
