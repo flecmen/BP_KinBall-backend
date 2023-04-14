@@ -11,10 +11,11 @@ const router = express.Router();
 //GET paginated events
 router.get('/', eventController.getPaginatedCurrentEvents)
 // GET multiple events by Ids
-router.get('/multiple', checkParameters, validateRequestSchema, eventController.getMultipleEvents)
+router.get('/multiple/:idArray', checkParameters, validateRequestSchema, eventController.getMultipleEvents) // TEST
 // GET multiple events by posIds
-router.get('/multiple/byPostIds', checkParameters, validateRequestSchema, eventController.getMultipleEventsByPostIds)
+router.get('/multiple/byPostIds/:idArray', checkParameters, validateRequestSchema, eventController.getMultipleEventsByPostIds) // TEST
 // GET events by organiser 
+// filter: today, future, past
 router.get('/organiser/:userId/:filter', authorizeRole([role.trener]), checkParameters, validateRequestSchema, eventController.getEventsByOrganiser)
 // Get event by Id
 router.get('/:eventId', checkParameters, validateRequestSchema, eventController.getEvent);
