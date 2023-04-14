@@ -40,6 +40,39 @@ export default {
         await userService.updateUser({ id: user.id }, { last_signed_in: new Date() });
 
         res.status(202).json(response)
-    }
+    },
+
+    checkEmailAvailability: async (req: Request, res: Response) => {
+        const user: User | null = await userService.getUser({ email: req.params.email });
+        if (user) {
+            return res.status(200).json({ message: false })
+        } else {
+            return res.status(200).json({ message: true })
+        }
+    },
+
+    register: async (req: Request, res: Response) => {
+        const user = req.body;
+        // check if all fields are filled
+        if (!user.full_name || !user.email || !user.password || user.full_name === '' || user.email === '' || user.password === '') {
+            res.status(400).json({ error: 'Something is missing' });
+            return;
+        }
+        // Hash password
+        const hashed_pw: String = authUtils.hashPassword(user.password)
+        user.password = hashed_pw;
+
+        // add to newcommer group
+        user.groups = { connect: [{ name: 'newcommers' }] }
+
+        // Create user
+        const new_user = await userService.createUser(user)
+
+        if (!new_user) {
+            res.status(403).json({ error: "email taken" })
+            return
+        }
+        return res.status(201).json({ message: 'User created' });
+    },
 
 }

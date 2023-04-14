@@ -48,8 +48,9 @@ export default {
     // This means that user loaded posts, which contain an event. Posts are already group-checked, so we don't have to check groups again
     getMultipleEventsByPostIds: async (req: Request, res: Response) => {
         // Parse post ids from query
-        if (req.query.idArray === undefined) return res.status(400).json({ error: 'Missing idArray' })
-        const postIds = (req.query.idArray as string).split(',').map((postId: string) => parseInt(postId));
+        const idArrayQuery = req.query.idArray
+        if (idArrayQuery === undefined) return res.status(400).json({ error: 'Missing idArray' })
+        const postIds = (idArrayQuery as string).split(',').map((postId: string) => parseInt(postId));
         const events = await eventService.getMultipleEventsByPostIds(postIds);
         if (events?.length === 0) {
             return res.status(400).json({ error: 'Failed to load events' })

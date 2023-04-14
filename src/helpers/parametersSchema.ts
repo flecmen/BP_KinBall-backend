@@ -10,6 +10,7 @@ const checkInputs = [
     param('boolValue').isBoolean().withMessage('Invalid boolValue value').optional(),
     param('filename').notEmpty().withMessage('Filename cannot be empty').optional(),
     query('idArray.*').isNumeric().withMessage('Id elements in array must be numbers').optional(),
+    query('email').isEmail().withMessage('Invalid email').optional(),
 ];
 
 export default checkInputs
