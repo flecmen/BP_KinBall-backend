@@ -65,7 +65,7 @@ export default {
         // add to newcommer group
         user.groups = { connect: [{ name: 'newcommers' }] }
 
-        user.role = role.clen_spolku_hrac
+        user.role = role.player
 
         // Create user
         const new_user = await userService.createUser(user)

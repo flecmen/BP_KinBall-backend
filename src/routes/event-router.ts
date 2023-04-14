@@ -16,19 +16,19 @@ router.get('/multiple/:idArray', checkParameters, validateRequestSchema, eventCo
 router.get('/multiple/byPostIds/:idArray', checkParameters, validateRequestSchema, eventController.getMultipleEventsByPostIds) // TEST
 // GET events by organiser 
 // filter: today, future, past
-router.get('/organiser/:userId/:filter', authorizeRole([role.trener]), checkParameters, validateRequestSchema, eventController.getEventsByOrganiser)
+router.get('/organiser/:userId/:filter', authorizeRole([role.coach]), checkParameters, validateRequestSchema, eventController.getEventsByOrganiser)
 // Get event by Id
 router.get('/:eventId', checkParameters, validateRequestSchema, eventController.getEvent);
 // Create event
-router.post('/', authorizeRole([role.trener]), eventController.createEvent);
+router.post('/', authorizeRole([role.coach]), eventController.createEvent);
 // Delete event
-router.delete('/:eventId', authorizeRole([role.trener]), authorizeEventAuthor, checkParameters, validateRequestSchema, eventController.deleteEvent);
+router.delete('/:eventId', authorizeRole([role.coach]), authorizeEventAuthor, checkParameters, validateRequestSchema, eventController.deleteEvent);
 // Edit event
-router.put('/:eventId', authorizeRole([role.trener]), authorizeEventAuthor, checkParameters, validateRequestSchema, eventController.editEvent);
+router.put('/:eventId', authorizeRole([role.coach]), authorizeEventAuthor, checkParameters, validateRequestSchema, eventController.editEvent);
 // change user vote (going, don't know, not going)
 router.post('/:eventId/user/:userId/status/:userOnEventStatus/:boolValue', checkParameters, validateRequestSchema, eventController.changeUserOnEventStatus);
 // do the attendance
-router.post('/:eventId/attendance', authorizeRole([role.trener]), authorizeEventAuthor, checkParameters, validateRequestSchema, eventController.changeUserAttendance);
+router.post('/:eventId/attendance', authorizeRole([role.coach]), authorizeEventAuthor, checkParameters, validateRequestSchema, eventController.changeUserAttendance);
 
 
 export default router;

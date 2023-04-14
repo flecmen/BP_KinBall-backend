@@ -8,12 +8,12 @@ import { role } from "@prisma/client";
 const router = express.Router();
 
 // GET all users
-router.get('/', authorizeRole([role.trener]), userController.getAllUsers)
+router.get('/', authorizeRole([role.coach]), userController.getAllUsers)
 // GET user by ID
 router.get('/:userId', checkParameters, validateRequestSchema, userController.getUser)
 
 //Create user
-router.post('/', authorizeRole([role.trener]), userController.createUser)
+router.post('/', authorizeRole([role.coach]), userController.createUser)
 
 //edit user
 // only user, admin and trener can edit user

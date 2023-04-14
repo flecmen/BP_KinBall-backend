@@ -178,11 +178,8 @@ model Group {
 
 enum role {
   admin
-  trener
-  clen_spolku_hrac
-  neclen_spolku_hrac
-  hrac_z_jineho_klubu
-  zajemce
+  coach
+  player
 }
 
 enum postType {
@@ -202,5 +199,5 @@ enum UserOnEventStatus {
   going
   not_going
   dont_know
-  substitue
+  substitute
 }

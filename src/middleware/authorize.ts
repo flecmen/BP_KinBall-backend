@@ -64,8 +64,8 @@ export const authorizeUserAdminTrener = async (req: Request, res: Response, next
     const user = req.user as User & { groups: Group[] };
     const userId = parseInt(req.params.userId);
 
-    // only user, admin and trener can access this
-    if (user.id !== userId && user.role !== role.admin && user.role !== role.trener) {
+    // only user, admin and coach can access this
+    if (user.id !== userId && user.role !== role.admin && user.role !== role.coach) {
         return res.status(403).json({
             error: `Forbidden`
         });

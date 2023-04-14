@@ -56,7 +56,7 @@ export default {
             },
             role: {
                 type: "string",
-                example: "trener"
+                example: "coach"
             },
             date_of_birth: {
                 type: "string",
