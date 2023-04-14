@@ -24,6 +24,6 @@ npx prisma db seed
 
 ## Start the server
 ```bash
-npm run dev
+npm run start
 ```
 
