@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient, Post, Group } from "@prisma/client";
 import Logger from "../utils/logger";
-import { postIncludes, whereGroups } from "../types/queryIncludes";
+import { postIncludes, whereGroups } from "../helpers/queryIncludes";
 
 const prisma = new PrismaClient();
 

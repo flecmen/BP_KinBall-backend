@@ -1,4 +1,4 @@
-import { User, UserOnEventStatus, postType, Group, role, Event, Prisma } from '@prisma/client';
+import { User, UserOnEventStatus, postType, Group, role, Event, Prisma, eventType } from '@prisma/client';
 import { Request, Response } from "express"
 import eventService from "../services/event-service";
 import postService from '../services/post-service';
@@ -27,7 +27,7 @@ export default {
             return res.status(400).json({ error: 'Missing idArray' })
 
         const eventIds = (req.query.idArray as string).split(',').map((eventId: string) => parseInt(eventId));
-        const events = await eventService.getMultipleEvents(eventIds);
+        const events = await eventService.getEvents({ id: { in: eventIds } });
 
         if (events?.length === 0) {
             return res.status(400).json({ error: 'Failed to load events' })
@@ -51,7 +51,7 @@ export default {
         const idArrayQuery = req.query.idArray
         if (idArrayQuery === undefined) return res.status(400).json({ error: 'Missing idArray' })
         const postIds = (idArrayQuery as string).split(',').map((postId: string) => parseInt(postId));
-        const events = await eventService.getMultipleEventsByPostIds(postIds);
+        const events = await eventService.getEvents({ postId: { in: postIds } })
         if (events?.length === 0) {
             return res.status(400).json({ error: 'Failed to load events' })
         }
@@ -126,6 +126,12 @@ export default {
         if (isNaN(event.price)) event.price = 0;
         if (isNaN(event.people_limit)) event.people_limit = 0;
         if (isNaN(event.substitues_limit)) event.substitues_limit = 0;
+
+        // if type is kurz_pro_mladez, we will sign up all users in the group automatically
+        if (event.type === eventType.kurz_pro_mladez) {
+
+            //TODO:
+        }
 
         const new_event = await eventService.createEvent(event);
 

@@ -8,17 +8,18 @@ import { role } from '@prisma/client';
 const router = express.Router();
 
 
-//GET paginated events
-router.get('/', eventController.getPaginatedCurrentEvents)
+
 // GET multiple events by Ids
-router.get('/multiple/:idArray', checkParameters, validateRequestSchema, eventController.getMultipleEvents) // TEST
+router.get('/multiple', checkParameters, validateRequestSchema, eventController.getMultipleEvents)
 // GET multiple events by posIds
-router.get('/multiple/byPostIds/:idArray', checkParameters, validateRequestSchema, eventController.getMultipleEventsByPostIds) // TEST
+router.get('/multiple/byPostIds', checkParameters, validateRequestSchema, eventController.getMultipleEventsByPostIds)
 // GET events by organiser 
 // filter: today, future, past
 router.get('/organiser/:userId/:filter', authorizeRole([role.coach]), checkParameters, validateRequestSchema, eventController.getEventsByOrganiser)
 // Get event by Id
-router.get('/:eventId', checkParameters, validateRequestSchema, eventController.getEvent);
+router.get('/id/:eventId', checkParameters, validateRequestSchema, eventController.getEvent);
+//GET paginated events
+router.get('/', eventController.getPaginatedCurrentEvents)
 // Create event
 router.post('/', authorizeRole([role.coach]), eventController.createEvent);
 // Delete event

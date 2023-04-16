@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient, Event, Post, Group } from "@prisma/client";
 import Logger from "../utils/logger";
 import EventAttendance from "../types/eventAttendance";
-import { eventIncludes } from "../types/queryIncludes";
+import { eventIncludes } from "../helpers/queryIncludes";
 
 const prisma = new PrismaClient();
 
@@ -24,26 +24,6 @@ export default {
             })
         } catch (e) {
             Logger.error(`event-service.getEvents: ${e}`)
-        }
-    },
-    async getMultipleEvents(idArray: Event['id'][]) {
-        try {
-            return await prisma.event.findMany({
-                where: { id: { in: idArray } },
-                include: eventIncludes,
-            })
-        } catch (e) {
-            Logger.error(`event-service.getMultipleEvents: ${e}`)
-        }
-    },
-    async getMultipleEventsByPostIds(postIdArray: Post['id'][]) {
-        try {
-            return await prisma.event.findMany({
-                where: { postId: { in: postIdArray } },
-                include: eventIncludes,
-            })
-        } catch (e) {
-            Logger.error(`event-service.getMultipleEventsByPostIds: ${e}`)
         }
     },
     async getPaginatedCurrentEvents(skip: number, limit: number, userGroups: Group[]) {
