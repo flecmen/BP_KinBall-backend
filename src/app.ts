@@ -12,7 +12,7 @@ const app: Express = express();
 app.use(express.json());
 
 //Security
-app.use(cors({ origin: apiConfig.frontRootUrl }));
+app.use(cors({ origin: apiConfig.frontRootUrls }));
 
 // Routery
 app.use(router)
