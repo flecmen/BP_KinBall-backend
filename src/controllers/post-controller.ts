@@ -57,7 +57,9 @@ export default {
         // Get user groups, to filter posts by them
         const user = req.user as User & { groups: Group[] };
 
-        const posts = await postService.getPaginatedPosts(skip, limit, user.groups);
+        const posts = await postService.getPaginatedPosts(skip, limit, {
+            groups: { some: { id: { in: user.groups.map(group => group.id) } } }
+        });
         if (posts === undefined) {
             return res.status(400).json({
                 error: `Failed to load posts`

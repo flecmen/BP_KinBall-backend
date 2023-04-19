@@ -28,18 +28,10 @@ export default {
         }
     },
 
-    async getPaginatedPosts(skip: number, limit: number, userGroups: Group[]) {
+    async getPaginatedPosts(skip: number, limit: number, postWhereInput: Prisma.PostWhereInput) {
         try {
             const posts = await prisma.post.findMany({
-                where: {
-                    groups: {
-                        some: {
-                            id: {
-                                in: userGroups.map(group => group.id)
-                            }
-                        }
-                    }
-                },
+                where: postWhereInput,
                 skip,
                 take: limit,
                 orderBy: { time_of_creation: 'desc' },
