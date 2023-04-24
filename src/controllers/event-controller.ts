@@ -105,8 +105,9 @@ export default {
     createEvent: async (req: Request, res: Response) => {
         let event = req.body;
 
-        if (!event) {
-            res.status(400).json({
+        // check if all mandatory fields are present
+        if (!event || !event.organiser || !event.groups || !event.time || !event.type) {
+            return res.status(400).json({
                 error: `Missing or falsy mandatory fields`
             });
         }

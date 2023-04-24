@@ -7,6 +7,7 @@ const API_ROOT_URL = env.defaultEnv('API_ROOT_URL', `http://localhost:${PORT}`);
 
 export default {
     port: PORT,
-    frontRootUrls: [FRONT_ROOT_URL, FRONT_PWA_URL],
+    frontRootUrls: [FRONT_ROOT_URL, FRONT_PWA_URL,
+        '192.168.0.183:9200'],
     apiRootUrl: API_ROOT_URL
 }

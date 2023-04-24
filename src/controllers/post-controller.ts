@@ -74,10 +74,9 @@ export default {
 
         // Check if mandatory fields are present and truthy
         if (!post.author || !post.heading || !post.type || !post.text) {
-            res.status(400).json({
+            return res.status(400).json({
                 error: `Missing or falsy mandatory fields`
             });
-            return;
         }
         if (!post.groups || post.groups.length === 0) {
             res.status(400).json({
