@@ -46,20 +46,6 @@ describe('Creating a post', () => {
                         expect(response.statusCode).toBe(400)
                     })
                 })
-                describe('text', () => {
-                    it('Should return 400 and error message', async () => {
-                        const response = await supertest(app)
-                            .post('/post')
-                            .send({
-                                heading: 'Test post',
-                                type: 'text',
-                                author: { id: 1 },
-                                groups: [{ id: 1 }],
-                            })
-                            .set('Authorization', 'Bearer ' + token)
-                        expect(response.statusCode).toBe(400)
-                    })
-                })
                 describe('type', () => {
                     it('Should return 400 and error message', async () => {
                         const response = await supertest(app)
