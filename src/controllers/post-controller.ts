@@ -74,10 +74,10 @@ export default {
     createPost: async (req: Request, res: Response) => {
         let post = req.body;
 
-        // Check if mandatory fields are present and truthy
-        if (!post.author || !post.heading || !post.type || !post.text) {
+        // Check if mandatory fields are present
+        if (!post.author || !post.heading || !post.type) {
             return res.status(400).json({
-                error: `Missing or falsy mandatory fields`
+                error: `Missing or falsy mandatory fields: ${post}`
             });
         }
         if (!post.groups || post.groups.length === 0) {
