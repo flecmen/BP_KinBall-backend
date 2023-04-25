@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer';
 import Email from 'email-templates';
 import emailConfig from "../config/email-config";
 import env from './env';
+import { postType } from '@prisma/client';
 
 export interface MailOptions {
     from?: string,
@@ -9,8 +10,14 @@ export interface MailOptions {
     subject: string,
 }
 
-export interface MailContent {
+export interface MailContentType {
     newAccountContent?: basicContent & NewAccountContent,
+    newPostContent?: basicContent & NewPostContent,
+}
+
+export const MailTemplates = {
+    newAccountTemplate: 'newAccountTemplate',
+    newPostTemplate: 'newPostTemplate',
 }
 
 export const transporter = nodemailer.createTransport(emailConfig.transporter);
@@ -23,7 +30,6 @@ export const email = new Email({
 })
 
 interface basicContent {
-    full_name: string;
     heading: string;
     text: string;
 }
@@ -31,4 +37,12 @@ interface basicContent {
 interface NewAccountContent {
     login: string;
     password: string;
+}
+
+interface NewPostContent {
+    author: string;
+    time_of_creation: Date;
+    postHeading: string;
+    postText: string;
+    postType: postType;
 }
