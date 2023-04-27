@@ -5,7 +5,7 @@ import commentService from "../services/comment-service";
 import rewardService from '../services/reward-service';
 import { postType, Group, User, role } from '@prisma/client';
 import Logger from "../utils/logger";
-import groupCheck from "../utils/group-check";
+import groupCheck from "../helpers/group-check";
 import { UnauthorizedError } from "express-jwt";
 
 

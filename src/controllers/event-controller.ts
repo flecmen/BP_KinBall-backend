@@ -5,7 +5,7 @@ import postService from '../services/post-service';
 import userService from "../services/user-service";
 import rewardService from '../services/reward-service';
 import EventAttendance from '../types/eventAttendance';
-import groupCheck from "../utils/group-check";
+import groupCheck from "../helpers/group-check";
 import Logger from '../utils/logger';
 
 export default {
