@@ -43,11 +43,16 @@ export default {
     },
 
     async updateUser(userWhereUniqueInput: Prisma.UserWhereUniqueInput, userUpdateInput: Prisma.UserUpdateInput) {
-        return await prisma.user.update({
-            where: userWhereUniqueInput,
-            data: userUpdateInput,
-            include: userInclude,
-        })
+        try {
+            return await prisma.user.update({
+                where: userWhereUniqueInput,
+                data: userUpdateInput,
+                include: userInclude,
+            })
+        } catch (e) {
+            Logger.error('updateUser service: ' + e)
+            return
+        }
     },
 
     async deleteUser(userWhereUniqueInput: Prisma.UserWhereUniqueInput) {

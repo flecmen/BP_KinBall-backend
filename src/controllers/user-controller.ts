@@ -58,7 +58,6 @@ export default {
         delete user.settings?.userId;
         delete user.reward_system?.userId;
 
-
         if (user.settings)
             user.settings = { update: user.settings }
 

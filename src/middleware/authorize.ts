@@ -8,7 +8,7 @@ import Logger from '../utils/logger';
 export const authorizeRole = (roles: role[]) => {
     return (req: Request, res: Response, next: NextFunction) => {
         const user = req.user as User;
-        const userRole = user.role; // Get the user's role from req.body.user
+        const userRole = user.role; // Get the user's role from req.user
 
         // couldn't find user role in request
         if (!userRole) {
