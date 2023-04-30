@@ -209,7 +209,6 @@ export default {
 
         // Check if the user is already reacted on the event
         const reaction = event?.players.find(p => p.user.id === userId)
-
         if (reaction !== undefined) {
             // reacted the same way, do nothing
             if (reaction.status === userOnEventStatus && boolValue)
@@ -218,15 +217,26 @@ export default {
             // smažeme body, pokud minulá reakce byla 'going'
             if (reaction.status === UserOnEventStatus.going) await rewardService.removeEventSignupReward([userId]);
             // smažeme reakci
-            await eventService.editEvent({ id: eventId }, { players: { delete: { userId_eventId: { userId: userId, eventId: eventId } } } });
+            const updated_event = await eventService.editEvent({ id: eventId }, { players: { delete: { userId_eventId: { userId: userId, eventId: eventId } } } });
+            return res.status(201).json(updated_event);
         }
         // reagoval pozitivně na jinou reakci?
         if (boolValue) {
+            // Pokud reagoval going, checkneme, jestli není termín plný, případně dáme do záložníků, případně vrátíme chybu
+            if (userOnEventStatus === UserOnEventStatus.going) {
+                // termín je na limitu, dáme do záložníků
+                if (event?.people_limit !== 0 && event?.players.filter(p => p.status === UserOnEventStatus.going).length === event?.people_limit) {
+                    // pokud je plný i počet záložníků, vrátíme chybu
+                    if (event?.players.filter(p => p.status === UserOnEventStatus.substitute).length === event?.substitues_limit) return res.status(400).json({ error: 'Event is full' });
+                    // u záložníků je místo, přidáme ho tam
+                    const updated_event = await eventService.editEvent({ id: eventId }, { players: { create: { user: { connect: { id: userId } }, status: UserOnEventStatus.substitute } } });
+                    return res.status(201).json(updated_event);
+                }
+            }
             // reagoval, vytvoříme novou reakci
-            await eventService.editEvent({ id: eventId }, { players: { create: { user: { connect: { id: userId } }, status: userOnEventStatus } } });
+            const updated_event = await eventService.editEvent({ id: eventId }, { players: { create: { user: { connect: { id: userId } }, status: userOnEventStatus } } });
+            return res.status(201).json(updated_event);
         }
-        const updated_event = await eventService.getEvent({ id: eventId })
-        return res.status(201).json(updated_event);
     },
 
     /*

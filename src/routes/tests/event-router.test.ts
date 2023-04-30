@@ -162,7 +162,6 @@ describe('EVENT', () => {
     describe('Set attendance [POST /event/:eventId/attendance]', () => {
         describe('Given right credentials', () => {
             it('Should return 200 and updated event', async () => {
-
                 const event = await supertest(app)
                     .post('/event')
                     .send({
