@@ -114,7 +114,7 @@ async function main() {
         event: {
             create: {
                 type: eventType.trenink,
-                time: new Date('2023-05-01T10:00:00.000Z'),
+                time: new Date('2030-05-01T10:00:00.000Z'),
                 address: "adresa dlouhá",
                 description: "random description",
                 people_limit: 20,
