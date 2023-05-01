@@ -25,6 +25,9 @@ export default {
     // Password is randomly generated and sent to user's email
     createUser: async (req: Request, res: Response) => {
         let user = req.body;
+        if (!user.email || !user.full_name) {
+            return res.status(400).json({ error: 'email and full name are required' })
+        }
         const stringPassword = passwordGenerator.generate({
             length: 15,
             numbers: true,
