@@ -24,7 +24,7 @@ const port = apiConfig.port;
 
 if (env.requireEnv('NODE_ENV') !== 'test') {
     app.listen(port, () => {
-        Logger.info(`Server is running at http://localhost:${port}`);
+        Logger.info(`Server is running at http://localhost:${port}, accepting requests from ${apiConfig.frontRootUrls}`);
         const numberPort = parseInt(port as string)
         swaggerDocs(app, numberPort);
     });
