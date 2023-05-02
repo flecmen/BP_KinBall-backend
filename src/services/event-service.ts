@@ -71,7 +71,7 @@ export default {
                 include: eventIncludes
             })
         } catch (e) {
-            Logger.error(`event-service.editEvent: ${e}`)
+            Logger.error(`event-service.editEvent: ${e}, arugments: ${JSON.stringify({ eventWhereUniqueInput, eventUpdateInput })}`)
         }
     },
     async deleteEvent(eventWhereUniqueInput: Prisma.EventWhereUniqueInput) {

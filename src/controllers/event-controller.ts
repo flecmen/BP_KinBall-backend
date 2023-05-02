@@ -207,34 +207,49 @@ export default {
             });
         }
 
-        // Check if the user is already reacted on the event
+        // Check if the user has already reacted on the event
         const reaction = event?.players.find(p => p.user.id === userId)
-        if (reaction !== undefined) {
-            // reacted the same way, do nothing
-            if (reaction.status === userOnEventStatus && boolValue)
-                return res.status(200).json({ message: 'User already reacted with this status' });
 
-            // smažeme body, pokud minulá reakce byla 'going'
-            if (reaction.status === UserOnEventStatus.going) await rewardService.removeEventSignupReward([userId]);
-            // smažeme reakci
-            const updated_event = await eventService.editEvent({ id: eventId }, { players: { delete: { userId_eventId: { userId: userId, eventId: eventId } } } });
-            return res.status(201).json(updated_event);
-        }
-        // reagoval pozitivně na jinou reakci?
+        // Has he reacted the same way?
+        if ((reaction?.status === userOnEventStatus) && boolValue)
+            // Yes, do nothing
+            return res.status(200).json({ message: 'User already reacted with this status' });
+
+
+        // Reagoval pozitivně
         if (boolValue) {
-            // Pokud reagoval going, checkneme, jestli není termín plný, případně dáme do záložníků, případně vrátíme chybu
+            //smažeme starou reakci, pokud existuje
+            if (reaction) await eventService.editEvent({ id: eventId }, { players: { delete: { userId_eventId: { userId: userId, eventId: eventId } } } });
+            // smažeme body, pokud minulá reakce byla 'going'
+            if (reaction?.status === UserOnEventStatus.going) await rewardService.removeEventSignupReward([userId]);
+            // Pokud reagoval going
             if (userOnEventStatus === UserOnEventStatus.going) {
-                // termín je na limitu, dáme do záložníků
-                if (event?.people_limit !== 0 && event?.players.filter(p => p.status === UserOnEventStatus.going).length === event?.people_limit) {
+                // Je termín plný?
+                if (event?.people_limit && event?.people_limit !== 0 && event?.players.filter(p => p.status === UserOnEventStatus.going).length < event?.people_limit) {
                     // pokud je plný i počet záložníků, vrátíme chybu
                     if (event?.players.filter(p => p.status === UserOnEventStatus.substitute).length === event?.substitues_limit) return res.status(400).json({ error: 'Event is full' });
                     // u záložníků je místo, přidáme ho tam
                     const updated_event = await eventService.editEvent({ id: eventId }, { players: { create: { user: { connect: { id: userId } }, status: UserOnEventStatus.substitute } } });
                     return res.status(201).json(updated_event);
+                    // na termínu je místo
+                } else {
+                    //přídáme mezi going 
+                    const updated_event = await eventService.editEvent({ id: eventId }, { players: { create: { user: { connect: { id: userId } }, status: UserOnEventStatus.going } } });
+                    // a přičteme body
+                    await rewardService.addEventSignupReward([userId]);
+                    return res.status(201).json(updated_event);
                 }
             }
-            // reagoval, vytvoříme novou reakci
+            // uživatel reagoval jinak pozitivně
             const updated_event = await eventService.editEvent({ id: eventId }, { players: { create: { user: { connect: { id: userId } }, status: userOnEventStatus } } });
+            return res.status(201).json(updated_event);
+
+        } else {
+            // Reagoval negativně
+            // smažeme reakci
+            const updated_event = await eventService.editEvent({ id: eventId }, { players: { delete: { userId_eventId: { userId: userId, eventId: eventId } } } });
+            // pokud byl předtím going, odečteme body
+            if (reaction?.status === UserOnEventStatus.going) await rewardService.removeEventSignupReward([userId]);
             return res.status(201).json(updated_event);
         }
     },
