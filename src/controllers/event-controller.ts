@@ -225,7 +225,7 @@ export default {
             // Pokud reagoval going
             if (userOnEventStatus === UserOnEventStatus.going) {
                 // Je termín plný?
-                if (event?.people_limit && event?.people_limit !== 0 && event?.players.filter(p => p.status === UserOnEventStatus.going).length < event?.people_limit) {
+                if (event?.people_limit && event?.people_limit !== 0 && event?.players.filter(p => p.status === UserOnEventStatus.going).length === event?.people_limit) {
                     // pokud je plný i počet záložníků, vrátíme chybu
                     if (event?.players.filter(p => p.status === UserOnEventStatus.substitute).length === event?.substitues_limit) return res.status(400).json({ error: 'Event is full' });
                     // u záložníků je místo, přidáme ho tam
