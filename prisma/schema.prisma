@@ -10,16 +10,34 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Club {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  city        String
+  address     String
+  admin       User    @relation(fields: [userId], references: [id])
+  userId      Int     @unique
+}
+
 model User {
-  id                 Int             @id @default(autoincrement())
-  full_name          String
-  email              String          @unique
-  password           String
+  id       Int    @id @default(autoincrement())
+  // login info
+  email    String @unique
+  password String
+
   role               role
-  date_of_birth      DateTime?
   last_signed_in     DateTime?
+  // about User
+  full_name          String
+  nickname           String?
+  date_of_birth      DateTime?
   facebook           String?
   instagram          String?
+  phone_number       String?
+  about_me           String?
+  kinball_experience User_kinball_experience?
+
   settings           Settings?
   reward_system      Reward_system?
   // Posts of which user is the author
@@ -44,6 +62,8 @@ model User {
   // Groups (tags) user is in
   groups             Group[]         @relation("user_in_group")
   imageId            Int?
+  // User is sub-admin of a club:
+  admin_of_club      Club?
 }
 
 model Settings {
@@ -180,6 +200,7 @@ enum role {
   admin
   coach
   player
+  sub_admin
 }
 
 enum postType {
@@ -200,4 +221,10 @@ enum UserOnEventStatus {
   not_going
   dont_know
   substitute
+}
+
+enum User_kinball_experience {
+  beginner
+  intermediate
+  pro
 }
