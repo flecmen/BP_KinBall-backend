@@ -142,6 +142,9 @@ model Event {
   address_lat      String?
   address_lng      String?
   groups           Group[]       @relation("event_in_grup")
+
+  // allow reaction until before
+  reaction_deadline DateTime?
 }
 
 model UserOnEvent {
