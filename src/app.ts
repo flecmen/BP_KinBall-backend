@@ -1,11 +1,12 @@
+import cors from 'cors';
 import express, { Express, Request, Response } from 'express';
-import Logger from './utils/logger';
-import router from './router';
-import swaggerDocs from './utils/swagger';
-import cors from 'cors'
 import { apiConfig } from './config';
-import env from './utils/env';
+import router from './router';
 import { scheduleAllTasks } from './scheduler';
+import env from './utils/env';
+import Logger from './utils/logger';
+import swaggerDocs from './utils/swagger';
+
 
 const app: Express = express();
 

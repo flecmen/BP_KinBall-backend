@@ -1,9 +1,9 @@
 import { Express, Request, Response } from "express";
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import { version } from '../../package.json'
+import { version } from '../../package.json';
+import swagger from '../docs/swagger';
 import Logger from "./logger";
-import swagger from '../docs/swagger'
 
 const options: swaggerJsdoc.Options = swagger
 

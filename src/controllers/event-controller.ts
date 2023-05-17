@@ -1,12 +1,13 @@
-import { User, UserOnEventStatus, postType, Group, role, Event, Prisma, eventType } from '@prisma/client';
-import { Request, Response } from "express"
+import { Group, Prisma, User, UserOnEventStatus, eventType, postType } from '@prisma/client';
+import { Request, Response } from "express";
+import groupCheck from "../helpers/group-check";
 import eventService from "../services/event-service";
 import postService from '../services/post-service';
-import userService from "../services/user-service";
 import rewardService from '../services/reward-service';
+import userService from "../services/user-service";
 import EventAttendance from '../types/eventAttendance';
-import groupCheck from "../helpers/group-check";
 import Logger from '../utils/logger';
+
 
 export default {
     getEvent: async (req: Request, res: Response) => {
