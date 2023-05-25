@@ -14,6 +14,9 @@ router.get('/', postController.getPaginatedPosts)
 //Create post
 router.post('/', postController.createPost)
 
+// GET multiple posts by Ids
+router.get('/multiple', checkParameters, validateRequestSchema, postController.getMultiplePosts)
+
 // Get post by Id
 router.get('/:postId', checkParameters, validateRequestSchema, postController.getPost)
 
@@ -23,9 +26,6 @@ router.put('/:postId', checkParameters, validateRequestSchema, authorizePostAuth
 
 //Delete post
 router.delete('/:postId', checkParameters, validateRequestSchema, authorizePostAuthor, postController.deletePost)
-
-// GET multiple posts by Ids
-router.get('/multiple', checkParameters, validateRequestSchema, postController.getMultiplePosts)
 
 /*
  *Interact with post

@@ -13,6 +13,16 @@ router.get('/', eventController.getPaginatedCurrentEvents)
 // Create event
 router.post('/', authorizeRole([role.coach]), eventController.createEvent);
 
+// GET multiple events by Ids
+router.get('/multiple', checkParameters, validateRequestSchema, eventController.getMultipleEvents)
+
+// GET multiple events by postIds
+router.get('/multiple/byPostIds', checkParameters, validateRequestSchema, eventController.getMultipleEventsByPostIds)
+
+// GET events by organiser 
+// filter: today, future, past
+router.get('/organiser/:userId/:filter', authorizeRole([role.coach]), checkParameters, validateRequestSchema, eventController.getEventsByOrganiser)
+
 // Get event by Id
 router.get('/:eventId', checkParameters, validateRequestSchema, eventController.getEvent);
 
@@ -27,16 +37,6 @@ router.post('/:eventId/user/:userId/status/:userOnEventStatus/:boolValue', check
 
 // do the attendance
 router.post('/:eventId/attendance', authorizeRole([role.coach]), authorizeEventAuthor, checkParameters, validateRequestSchema, eventController.changeUserAttendance);
-
-// GET multiple events by Ids
-router.get('/multiple', checkParameters, validateRequestSchema, eventController.getMultipleEvents)
-
-// GET multiple events by postIds
-router.get('/multiple/byPostIds', checkParameters, validateRequestSchema, eventController.getMultipleEventsByPostIds)
-
-// GET events by organiser 
-// filter: today, future, past
-router.get('/organiser/:userId/:filter', authorizeRole([role.coach]), checkParameters, validateRequestSchema, eventController.getEventsByOrganiser)
 
 
 export default router;
