@@ -131,8 +131,11 @@ export default {
 
         // if type is kurz_pro_mladez, we will sign up all users in the group automatically
         if (event.type === eventType.kurz_pro_mladez) {
+            const users = await userService.getUsers({ groups: { some: { id: event.groups.connect[0].id } } });
+            // Pokud je limit moc malý pro počet lidí v kurzu, limit zvýšíme
+            if (event.people_limit !== 0 && event.people_limit < users.length) event.people_limit = users.length;
 
-            //TODO:
+            event.players = { create: users.map(({ id }: { id: number }) => ({ user: { connect: { id: id } }, status: UserOnEventStatus.going })) };
         }
 
         const new_event = await eventService.createEvent(event);
@@ -234,7 +237,7 @@ export default {
                     return res.status(201).json(updated_event);
                     // na termínu je místo
                 } else {
-                    //přídáme mezi going 
+                    // termín plný není, přídáme mezi going 
                     const updated_event = await eventService.editEvent({ id: eventId }, { players: { create: { user: { connect: { id: userId } }, status: UserOnEventStatus.going } } });
                     // a přičteme body
                     await rewardService.addEventSignupReward([userId]);

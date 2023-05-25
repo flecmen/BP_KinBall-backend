@@ -1,6 +1,6 @@
-import app from '../../app';
-import supertest from "supertest";
 import { UserOnEventStatus, eventType } from '@prisma/client';
+import supertest from "supertest";
+import app from '../../app';
 import { getAdminAuthToken } from '../../utils/test-utils';
 
 let token: string;
@@ -48,7 +48,7 @@ describe('EVENT', () => {
 
 
 
-    describe('Create event - POST /', () => {
+    describe('Create event - POST /post', () => {
         describe('Given right credentials', () => {
             it('Should return 201 and created event', async () => {
                 const response = await supertest(app)
@@ -64,6 +64,58 @@ describe('EVENT', () => {
                     .set('Authorization', 'Bearer ' + token)
 
                 expect(response.status).toBe(201)
+            })
+        })
+
+        describe('Creating a kurz_pro_mladez', () => {
+            describe('Given right credentials', () => {
+                it('Should return 201 and created event with all members of the group', async () => {
+                    const group = await supertest(app)
+                        .post('/group')
+                        .set('Authorization', 'Bearer ' + token)
+                        .send({
+                            name: 'Test kurz pro mladez',
+                            color: '#000000',
+                        })
+                    expect(group.status).toBe(201)
+                    expect(group.body.id).toBeTruthy()
+                    const user1 = await supertest(app)
+                        .post('/user')
+                        .set('Authorization', 'Bearer ' + token)
+                        .send({
+                            full_name: 'Kurz_pro_Mladez Test User 2',
+                            email: 'kurz_pro_mladez@test1.com',
+                            groups: [{ id: group.body.id }]
+                        })
+                    expect(user1.status).toBe(201)
+                    const user2 = await supertest(app)
+                        .post('/user')
+                        .set('Authorization', 'Bearer ' + token)
+                        .send({
+                            full_name: 'Kurz_pro_Mladez Test User 2',
+                            email: 'kurz_pro_mladez@test2.com',
+                            groups: [{ id: group.body.id }]
+                        })
+                    expect(user2.status).toBe(201)
+                    const response = await supertest(app)
+                        .post('/event')
+                        .set('Authorization', 'Bearer ' + token)
+                        .send({
+                            description: 'Test description',
+                            time: new Date(),
+                            type: eventType.kurz_pro_mladez,
+                            groups: [{ id: group.body.id }],
+                            organiser: { id: 1 },
+                            address: 'Hybešova 80, Brno',
+                        })
+                    expect(response.status).toBe(201)
+                    expect(response.body.players).toEqual(
+                        expect.arrayContaining([
+                            expect.objectContaining({ userId: user1.body.id }),
+                            expect.objectContaining({ userId: user2.body.id })
+                        ])
+                    )
+                })
             })
         })
     })

@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import Logger from "../utils/logger";
 import { userInclude } from "../helpers/queryIncludes";
+import Logger from "../utils/logger";
 
 const prisma = new PrismaClient();
 
@@ -8,6 +8,13 @@ export default {
     async getUser(userWhereUniqueInput: Prisma.UserWhereUniqueInput) {
         return prisma.user.findUnique({
             where: userWhereUniqueInput,
+            include: userInclude
+        })
+    },
+
+    async getUsers(userWhereInput: Prisma.UserWhereInput) {
+        return prisma.user.findMany({
+            where: userWhereInput,
             include: userInclude
         })
     },

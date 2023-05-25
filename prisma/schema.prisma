@@ -27,7 +27,7 @@ model User {
   email    String @unique
   password String
 
-  role           role
+  role           role      @default(player)
   last_signed_in DateTime?
 
   // about User
