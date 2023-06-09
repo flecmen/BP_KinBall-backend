@@ -127,6 +127,9 @@ export default {
                 error: `Failed to create event's post, hence the event itself was not created.`
             });
         }
+        delete event.reaction_deadline;
+        delete event.heading;
+
         let newEvent: Prisma.EventCreateInput = {
             ...{ ...event } as Pick<Event, keyof Event>,
             organiser: { connect: { id: event.organiser.id } },
@@ -147,7 +150,6 @@ export default {
             newEvent.players = { create: users.map(({ id }: { id: number }) => ({ user: { connect: { id: id } }, status: UserOnEventStatus.going })) };
         }
 
-        console.log('newEvent: ', newEvent)
         const created_event = await eventService.createEvent(newEvent);
 
         if (!created_event) {
