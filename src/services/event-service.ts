@@ -1,7 +1,7 @@
-import { Prisma, PrismaClient, Event, Post, Group } from "@prisma/client";
-import Logger from "../utils/logger";
-import EventAttendance from "../types/eventAttendance";
+import { Event, Group, Post, Prisma, PrismaClient } from "@prisma/client";
 import { eventIncludes } from "../helpers/queryIncludes";
+import EventAttendance from "../types/eventAttendance";
+import Logger from "../utils/logger";
 
 const prisma = new PrismaClient();
 

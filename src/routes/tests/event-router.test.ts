@@ -189,23 +189,49 @@ describe('EVENT', () => {
                 expect(response.status).toBe(201)
             })
         })
-        describe('Giving wrong boolean', () => {
-            it('Should return 400', async () => {
-                const response = await supertest(app)
-                    .post(`/event/1/user/1/status/${UserOnEventStatus.going}/nejakystring`)
-                    .set('Authorization', 'Bearer ' + token)
 
-                expect(response.status).toBe(400)
+        describe('Giving wrong credentials', () => {
+            describe('Wrong boolean', () => {
+                it('Should return 400', async () => {
+                    const response = await supertest(app)
+                        .post(`/event/1/user/1/status/${UserOnEventStatus.going}/nejakystring`)
+                        .set('Authorization', 'Bearer ' + token)
+
+                    expect(response.status).toBe(400)
+                })
+            })
+            describe('Wrong userOnEventStatus value', () => {
+                it('Should return 400', async () => {
+                    const response = await supertest(app)
+                        .post(`/event/1/user/1/status/not going/true`)
+                        .set('Authorization', 'Bearer ' + token)
+
+                    expect(response.status).toBe(400)
+                    expect(response.body.error).toBe('Invalid userOnEventStatus value')
+                })
             })
         })
-        describe('Giving wrong userOnEventStatus value', () => {
-            it('Should return 400', async () => {
+
+        describe('Reacting on event after reaction_deadline', () => {
+            it('Should return 400 and error message', async () => {
+                const event = await supertest(app)
+                    .post('/event')
+                    .set('Authorization', 'Bearer ' + token)
+                    .send({
+                        description: 'Test description',
+                        time: new Date(),
+                        type: eventType.trenink,
+                        groups: [{ id: 1 }],
+                        organiser: { id: 1, full_name: 'David Flek' },
+                        address: 'Hybešova 80, Brno',
+                        reaction_deadline: new Date('2021-01-01')
+                    })
                 const response = await supertest(app)
-                    .post(`/event/1/user/1/status/not going/true`)
+                    .post(`/event/${event.body.id}/user/1/status/${UserOnEventStatus.going}/true`)
                     .set('Authorization', 'Bearer ' + token)
 
                 expect(response.status).toBe(400)
-                expect(response.body.error).toBe('Invalid userOnEventStatus value')
+                expect(response.body.error).toBe('Reaction deadline has passed')
             })
         })
     })

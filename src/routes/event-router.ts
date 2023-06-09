@@ -32,7 +32,7 @@ router.put('/:eventId', authorizeRole([role.coach]), authorizeEventAuthor, check
 // Delete event
 router.delete('/:eventId', authorizeRole([role.coach]), authorizeEventAuthor, checkParameters, validateRequestSchema, eventController.deleteEvent);
 
-// change user vote (going, don't know, not going)
+// change user reaction (going, don't know, not going)
 router.post('/:eventId/user/:userId/status/:userOnEventStatus/:boolValue', checkParameters, validateRequestSchema, eventController.changeUserOnEventStatus);
 
 // do the attendance

@@ -1,4 +1,4 @@
-import { Group, Prisma, User, UserOnEventStatus, eventType, postType } from '@prisma/client';
+import { Event, Group, Prisma, User, UserOnEventStatus, eventType, postType } from '@prisma/client';
 import { Request, Response } from "express";
 import groupCheck from "../helpers/group-check";
 import eventService from "../services/event-service";
@@ -122,15 +122,21 @@ export default {
             reaction_deadline: event.reaction_deadline
         });
 
+        if (!post) {
+            return res.status(400).json({
+                error: `Failed to create event's post, hence the event itself was not created.`
+            });
+        }
         let newEvent: Prisma.EventCreateInput = {
-            ...event,
+            ...{ ...event } as Pick<Event, keyof Event>,
             organiser: { connect: { id: event.organiser.id } },
-            post: { connect: { id: post?.id } },
+            post: { connect: { id: post.id } },
             groups: { connect: event.groups.map(({ id }: { id: number }) => ({ id })) },
             price: event.price ? parseInt(event.price) ?? 0 : 0,
             people_limit: Number.isNaN(parseInt(event.people_limit)) ? 0 : parseInt(event.people_limit) ?? 0,
             substitues_limit: Number.isNaN(parseInt(event.substitues_limit)) ? 0 : parseInt(event.substitues_limit) ?? 0,
         };
+
 
         // if type is kurz_pro_mladez, we will sign up all users in the group automatically
         if (newEvent.type === eventType.kurz_pro_mladez) {
@@ -141,6 +147,7 @@ export default {
             newEvent.players = { create: users.map(({ id }: { id: number }) => ({ user: { connect: { id: id } }, status: UserOnEventStatus.going })) };
         }
 
+        console.log('newEvent: ', newEvent)
         const created_event = await eventService.createEvent(newEvent);
 
         if (!created_event) {
@@ -204,13 +211,21 @@ export default {
         const event = await eventService.getEvent({ id: eventId });
 
         if (!user) {
-            res.status(400).json({
+            return res.status(400).json({
                 error: `User not found`
             });
         }
         if (!event) {
-            res.status(400).json({
+            return res.status(400).json({
                 error: `Event not found`
+            });
+        }
+
+        // Check reaction deadline
+        const post = await postService.getPost({ id: event.postId });
+        if (post && post.reaction_deadline && post.reaction_deadline < new Date()) {
+            return res.status(400).json({
+                error: `Reaction deadline has passed`
             });
         }
 
