@@ -127,8 +127,8 @@ model Event {
   // Short address for a short description of the place (tělocvična Mendelu)
   address_short    String?
   description      String?
-  people_limit     Int?
-  substitues_limit Int?
+  people_limit     Int
+  substitues_limit Int
   // note for after the event ends, filled by trainer
   note             String?
   // related post, used for users to sign in on the event and read its information

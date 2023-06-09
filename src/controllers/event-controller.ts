@@ -5,6 +5,7 @@ import eventService from "../services/event-service";
 import postService from '../services/post-service';
 import rewardService from '../services/reward-service';
 import userService from "../services/user-service";
+import newEventDTO from '../types/DTO/newEventDTO';
 import EventAttendance from '../types/eventAttendance';
 import Logger from '../utils/logger';
 
@@ -104,10 +105,10 @@ export default {
         return res.status(200).json(events)
     },
     createEvent: async (req: Request, res: Response) => {
-        let event = req.body;
+        let event: newEventDTO = req.body;
 
         // check if all mandatory fields are present
-        if (!event || !event.organiser || !event.groups || !event.time || !event.type) {
+        if (!event || !event.organiser || !event.groups || !event.time || !event.type || !("organiser" in event) || !("groups" in event) || !("time" in event) || !("type" in event)) {
             return res.status(400).json({
                 error: `Missing or falsy mandatory fields`
             });
@@ -117,36 +118,38 @@ export default {
             heading: 'Trénink',
             type: postType.event,
             groups: { connect: event.groups.map(({ id }: { id: number }) => ({ id })) },
-            author: { connect: { id: event.organiser.id } }
+            author: { connect: { id: event.organiser.id } },
+            reaction_deadline: event.reaction_deadline
         });
-        event.organiser = { connect: { id: event.organiser.id } }
-        event.post = { connect: { id: post?.id } }
-        event.groups = { connect: event.groups.map(({ id }: { id: number }) => ({ id })) }
-        event.price = parseInt(event.price) ?? null;
-        event.people_limit = parseInt(event.people_limit) ?? null;
-        event.substitues_limit = parseInt(event.substitues_limit) ?? null;
-        if (isNaN(event.price)) event.price = 0;
-        if (isNaN(event.people_limit)) event.people_limit = 0;
-        if (isNaN(event.substitues_limit)) event.substitues_limit = 0;
+
+        let newEvent: Prisma.EventCreateInput = {
+            ...event,
+            organiser: { connect: { id: event.organiser.id } },
+            post: { connect: { id: post?.id } },
+            groups: { connect: event.groups.map(({ id }: { id: number }) => ({ id })) },
+            price: event.price ? parseInt(event.price) ?? 0 : 0,
+            people_limit: Number.isNaN(parseInt(event.people_limit)) ? 0 : parseInt(event.people_limit) ?? 0,
+            substitues_limit: Number.isNaN(parseInt(event.substitues_limit)) ? 0 : parseInt(event.substitues_limit) ?? 0,
+        };
 
         // if type is kurz_pro_mladez, we will sign up all users in the group automatically
-        if (event.type === eventType.kurz_pro_mladez) {
-            const users = await userService.getUsers({ groups: { some: { id: event.groups.connect[0].id } } });
+        if (newEvent.type === eventType.kurz_pro_mladez) {
+            const users = await userService.getUsers({ groups: { some: { id: event.groups[0].id } } });
             // Pokud je limit moc malý pro počet lidí v kurzu, limit zvýšíme
-            if (event.people_limit !== 0 && event.people_limit < users.length) event.people_limit = users.length;
+            if (newEvent.people_limit !== 0 && newEvent.people_limit < users.length) newEvent.people_limit = users.length;
 
-            event.players = { create: users.map(({ id }: { id: number }) => ({ user: { connect: { id: id } }, status: UserOnEventStatus.going })) };
+            newEvent.players = { create: users.map(({ id }: { id: number }) => ({ user: { connect: { id: id } }, status: UserOnEventStatus.going })) };
         }
 
-        const new_event = await eventService.createEvent(event);
+        const created_event = await eventService.createEvent(newEvent);
 
-        if (!new_event) {
+        if (!created_event) {
             res.status(400).json({
                 error: `Event failed to create`
             });
         }
 
-        res.status(201).json(new_event);
+        res.status(201).json(created_event);
     },
 
     deleteEvent: async (req: Request, res: Response) => {
