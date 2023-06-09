@@ -9,7 +9,7 @@ const jwtVerify = (req: Request, res: Response, next: NextFunction) => {
         const token = authHeader.split(" ")[1];
         try {
             const decoded = jwt.verify(token, jwtConfig.secret as Secret);
-            req.user = decoded as User; // store the decoded payload in req.body.user
+            req.user = decoded as User; // store the decoded payload in req.user
             next(); // proceed to the next middleware or route handler
         } catch (error) {
             res.status(401).json({ message: "Invalid or expired token" }); // send an error response

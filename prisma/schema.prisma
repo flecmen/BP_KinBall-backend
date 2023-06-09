@@ -100,6 +100,9 @@ model Post {
   comments          Post_comment[]
   survey_options    Survey_option[]
   user_notification User[]          @relation("user-post_notification")
+
+  // allow event/survey reaction until before
+  reaction_deadline DateTime?
 }
 
 model Post_comment {
@@ -142,9 +145,6 @@ model Event {
   address_lat      String?
   address_lng      String?
   groups           Group[]       @relation("event_in_grup")
-
-  // allow reaction until before
-  reaction_deadline DateTime?
 }
 
 model UserOnEvent {
