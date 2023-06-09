@@ -131,7 +131,7 @@ export default {
         delete event.heading;
 
         let newEvent: Prisma.EventCreateInput = {
-            ...{ ...event } as Pick<Event, keyof Event>,
+            ...event,
             organiser: { connect: { id: event.organiser.id } },
             post: { connect: { id: post.id } },
             groups: { connect: event.groups.map(({ id }: { id: number }) => ({ id })) },
