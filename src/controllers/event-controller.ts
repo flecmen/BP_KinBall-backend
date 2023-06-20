@@ -1,12 +1,14 @@
-import { User, UserOnEventStatus, postType, Group, role, Event, Prisma, eventType } from '@prisma/client';
-import { Request, Response } from "express"
+import { Event, Group, Prisma, User, UserOnEventStatus, eventType, postType } from '@prisma/client';
+import { Request, Response } from "express";
+import groupCheck from "../helpers/group-check";
 import eventService from "../services/event-service";
 import postService from '../services/post-service';
-import userService from "../services/user-service";
 import rewardService from '../services/reward-service';
+import userService from "../services/user-service";
+import newEventDTO from '../types/DTO/newEventDTO';
 import EventAttendance from '../types/eventAttendance';
-import groupCheck from "../helpers/group-check";
 import Logger from '../utils/logger';
+
 
 export default {
     getEvent: async (req: Request, res: Response) => {
@@ -103,10 +105,10 @@ export default {
         return res.status(200).json(events)
     },
     createEvent: async (req: Request, res: Response) => {
-        let event = req.body;
+        let event: newEventDTO = req.body;
 
         // check if all mandatory fields are present
-        if (!event || !event.organiser || !event.groups || !event.time || !event.type) {
+        if (!event || !event.organiser || !event.groups || !event.time || !event.type || !("organiser" in event) || !("groups" in event) || !("time" in event) || !("type" in event)) {
             return res.status(400).json({
                 error: `Missing or falsy mandatory fields`
             });
@@ -116,33 +118,47 @@ export default {
             heading: 'Trénink',
             type: postType.event,
             groups: { connect: event.groups.map(({ id }: { id: number }) => ({ id })) },
-            author: { connect: { id: event.organiser.id } }
+            author: { connect: { id: event.organiser.id } },
+            reaction_deadline: event.reaction_deadline
         });
-        event.organiser = { connect: { id: event.organiser.id } }
-        event.post = { connect: { id: post?.id } }
-        event.groups = { connect: event.groups.map(({ id }: { id: number }) => ({ id })) }
-        event.price = parseInt(event.price) ?? null;
-        event.people_limit = parseInt(event.people_limit) ?? null;
-        event.substitues_limit = parseInt(event.substitues_limit) ?? null;
-        if (isNaN(event.price)) event.price = 0;
-        if (isNaN(event.people_limit)) event.people_limit = 0;
-        if (isNaN(event.substitues_limit)) event.substitues_limit = 0;
+
+        if (!post) {
+            return res.status(400).json({
+                error: `Failed to create event's post, hence the event itself was not created.`
+            });
+        }
+        delete event.reaction_deadline;
+        delete event.heading;
+
+        let newEvent: Prisma.EventCreateInput = {
+            ...event,
+            organiser: { connect: { id: event.organiser.id } },
+            post: { connect: { id: post.id } },
+            groups: { connect: event.groups.map(({ id }: { id: number }) => ({ id })) },
+            price: event.price ? parseInt(event.price) ?? 0 : 0,
+            people_limit: Number.isNaN(parseInt(event.people_limit)) ? 0 : parseInt(event.people_limit) ?? 0,
+            substitues_limit: Number.isNaN(parseInt(event.substitues_limit)) ? 0 : parseInt(event.substitues_limit) ?? 0,
+        };
+
 
         // if type is kurz_pro_mladez, we will sign up all users in the group automatically
-        if (event.type === eventType.kurz_pro_mladez) {
+        if (newEvent.type === eventType.kurz_pro_mladez) {
+            const users = await userService.getUsers({ groups: { some: { id: event.groups[0].id } } });
+            // Pokud je limit moc malý pro počet lidí v kurzu, limit zvýšíme
+            if (newEvent.people_limit !== 0 && newEvent.people_limit < users.length) newEvent.people_limit = users.length;
 
-            //TODO:
+            newEvent.players = { create: users.map(({ id }: { id: number }) => ({ user: { connect: { id: id } }, status: UserOnEventStatus.going })) };
         }
 
-        const new_event = await eventService.createEvent(event);
+        const created_event = await eventService.createEvent(newEvent);
 
-        if (!new_event) {
+        if (!created_event) {
             res.status(400).json({
                 error: `Event failed to create`
             });
         }
 
-        res.status(201).json(new_event);
+        res.status(201).json(created_event);
     },
 
     deleteEvent: async (req: Request, res: Response) => {
@@ -197,44 +213,67 @@ export default {
         const event = await eventService.getEvent({ id: eventId });
 
         if (!user) {
-            res.status(400).json({
+            return res.status(400).json({
                 error: `User not found`
             });
         }
         if (!event) {
-            res.status(400).json({
+            return res.status(400).json({
                 error: `Event not found`
             });
         }
 
-        // Check if the user is already reacted on the event
-        const reaction = event?.players.find(p => p.user.id === userId)
-        if (reaction !== undefined) {
-            // reacted the same way, do nothing
-            if (reaction.status === userOnEventStatus && boolValue)
-                return res.status(200).json({ message: 'User already reacted with this status' });
-
-            // smažeme body, pokud minulá reakce byla 'going'
-            if (reaction.status === UserOnEventStatus.going) await rewardService.removeEventSignupReward([userId]);
-            // smažeme reakci
-            const updated_event = await eventService.editEvent({ id: eventId }, { players: { delete: { userId_eventId: { userId: userId, eventId: eventId } } } });
-            return res.status(201).json(updated_event);
+        // Check reaction deadline
+        const post = await postService.getPost({ id: event.postId });
+        if (post && post.reaction_deadline && post.reaction_deadline < new Date()) {
+            return res.status(400).json({
+                error: `Reaction deadline has passed`
+            });
         }
-        // reagoval pozitivně na jinou reakci?
+
+        // Check if the user has already reacted on the event
+        const reaction = event?.players.find(p => p.user.id === userId)
+
+        // Has he reacted the same way?
+        if ((reaction?.status === userOnEventStatus) && boolValue)
+            // Yes, do nothing
+            return res.status(200).json({ message: 'User already reacted with this status' });
+
+
+        // Reagoval pozitivně
         if (boolValue) {
-            // Pokud reagoval going, checkneme, jestli není termín plný, případně dáme do záložníků, případně vrátíme chybu
+            //smažeme starou reakci, pokud existuje
+            if (reaction) await eventService.editEvent({ id: eventId }, { players: { delete: { userId_eventId: { userId: userId, eventId: eventId } } } });
+            // smažeme body, pokud minulá reakce byla 'going'
+            if (reaction?.status === UserOnEventStatus.going) await rewardService.removeEventSignupReward([userId]);
+            // Pokud reagoval going
             if (userOnEventStatus === UserOnEventStatus.going) {
-                // termín je na limitu, dáme do záložníků
-                if (event?.people_limit !== 0 && event?.players.filter(p => p.status === UserOnEventStatus.going).length === event?.people_limit) {
+                // Je termín plný?
+                if (event?.people_limit && event?.people_limit !== 0 && event?.players.filter(p => p.status === UserOnEventStatus.going).length === event?.people_limit) {
                     // pokud je plný i počet záložníků, vrátíme chybu
                     if (event?.players.filter(p => p.status === UserOnEventStatus.substitute).length === event?.substitues_limit) return res.status(400).json({ error: 'Event is full' });
                     // u záložníků je místo, přidáme ho tam
                     const updated_event = await eventService.editEvent({ id: eventId }, { players: { create: { user: { connect: { id: userId } }, status: UserOnEventStatus.substitute } } });
                     return res.status(201).json(updated_event);
+                    // na termínu je místo
+                } else {
+                    // termín plný není, přídáme mezi going 
+                    const updated_event = await eventService.editEvent({ id: eventId }, { players: { create: { user: { connect: { id: userId } }, status: UserOnEventStatus.going } } });
+                    // a přičteme body
+                    await rewardService.addEventSignupReward([userId]);
+                    return res.status(201).json(updated_event);
                 }
             }
-            // reagoval, vytvoříme novou reakci
+            // uživatel reagoval jinak pozitivně
             const updated_event = await eventService.editEvent({ id: eventId }, { players: { create: { user: { connect: { id: userId } }, status: userOnEventStatus } } });
+            return res.status(201).json(updated_event);
+
+        } else {
+            // Reagoval negativně
+            // smažeme reakci
+            const updated_event = await eventService.editEvent({ id: eventId }, { players: { delete: { userId_eventId: { userId: userId, eventId: eventId } } } });
+            // pokud byl předtím going, odečteme body
+            if (reaction?.status === UserOnEventStatus.going) await rewardService.removeEventSignupReward([userId]);
             return res.status(201).json(updated_event);
         }
     },

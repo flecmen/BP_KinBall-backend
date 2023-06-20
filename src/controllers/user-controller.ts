@@ -1,6 +1,6 @@
-import { Request, Response } from "express"
-import userService from "../services/user-service"
+import { Request, Response } from "express";
 import passwordGenerator from 'generate-password';
+import userService from "../services/user-service";
 import authUtils from "../utils/auth-utils";
 import emailController from "./email-controller";
 
@@ -33,12 +33,18 @@ export default {
             numbers: true,
         })
         user.password = authUtils.hashPassword(stringPassword);
+
+        if (user.groups && !user.groups.connect) {
+            const groups = user.groups
+            user.groups = {}
+            user.groups.connect = groups
+        }
+
         const new_user = await userService.createUser(user)
         // is email taken?
-        if (!new_user) {
-            res.status(403).json({ error: "email taken" })
-            return
-        }
+        if (!new_user)
+            return res.status(403).json({ error: "email taken" })
+
         // send email with password
         user.password = stringPassword;
         emailController.sendNewAccountEmail(user);

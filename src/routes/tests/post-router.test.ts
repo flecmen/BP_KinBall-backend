@@ -1,7 +1,7 @@
+import { Post, role } from "@prisma/client";
 import supertest from "supertest";
 import app from "../../app";
 import { getAdminAuthToken } from '../../utils/test-utils';
-import { Post, role } from "@prisma/client";
 
 let token: string;
 beforeEach(async () => {
@@ -180,11 +180,11 @@ describe('GET multiple posts [/multiple]', () => {
                 .get('/post/multiple')
                 .query({ idArray: postIds.join(',') })
                 .set('Authorization', 'Bearer ' + token)
-            expect(response.statusCode).toBe(200)
             expect(response.body).toEqual(expect.arrayContaining([
                 expect.objectContaining({ id: 1 }),
                 expect.objectContaining({ id: 2 })
             ]))
+            expect(response.statusCode).toBe(200)
         })
     })
     describe('Given invalid post ids', () => {

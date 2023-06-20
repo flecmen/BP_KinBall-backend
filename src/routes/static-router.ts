@@ -5,7 +5,8 @@ import staticController from "../controllers/static-controller";
 
 const router = express.Router();
 
-router.get('/image/:filename', checkParameters, validateRequestSchema, staticController.getImage)
 router.post('/image', staticController.postImage)
+
+router.get('/image/:filename', checkParameters, validateRequestSchema, staticController.getImage)
 
 export default router;

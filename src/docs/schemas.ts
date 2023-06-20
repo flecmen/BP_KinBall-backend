@@ -81,5 +81,42 @@ export default {
                 $ref: "#/components/schemas/Reward_system"
             }
         }
+    },
+    parameters: {
+        path: {
+            userId: {
+                in: "path",
+                name: "userId",
+                schema: {
+                    type: "number",
+                    example: 1
+                }
+            },
+        },
+        query: {
+            idArray: {
+                in: "query",
+                name: "idArray",
+                schema: {
+                    type: "array",
+                    items: {
+                        type: "number",
+                        example: 1
+                    }
+                }
+            },
+            page: {
+                in: "query",
+                name: "page",
+                required: false,
+                default: 1,
+            },
+            limit: {
+                in: "query",
+                name: "limit",
+                required: false,
+                default: 10,
+            },
+        }
     }
 }

@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient, User } from "@prisma/client";
 import userService from "./user-service";
 import Logger from "../utils/logger";
-import rewardPoints from "../config/rewardPoints";
+import rewardPoints from "../config/rewardPoints-config";
 
 const prisma = new PrismaClient();
 

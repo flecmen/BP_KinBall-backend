@@ -4,6 +4,7 @@ import postService from '../src/services/post-service';
 import authUtils from '../src/utils/auth-utils';
 import groupService from '../src/services/group-service';
 import env from '../src/utils/env';
+import eventService from '../src/services/event-service';
 
 const prisma = new PrismaClient()
 
@@ -13,15 +14,15 @@ async function main() {
         name: "all",
         color: "grey"
     })
+    const group2 = await groupService.createGroup({
+        name: "testGroup",
+        color: "red-6"
+    })
     const group3 = await groupService.createGroup({
         name: "newcommers",
         color: "green"
     })
 
-    const group2 = await groupService.createGroup({
-        name: "testGroup",
-        color: "red-6"
-    })
     const default_profile_pic = await prisma.image.create({
         data: {
             image_path: "avatar.jpg"
@@ -39,7 +40,9 @@ async function main() {
         instagram: 'https://instagram.com/davidflek',
         groups: {
             connect: [
-                { id: group2?.id }]
+                { id: group2?.id },
+                { id: group3?.id }
+            ]
         },
     })
     const user1 = await userService.createUser(
@@ -79,47 +82,44 @@ async function main() {
 
     const post2 = await postService.createPost({
         type: postType.event,
-        heading: "heading2",
+        heading: "Trénink",
         author: { connect: { id: user1?.id } },
         groups: {
             connect: [{ id: group1?.id }, { id: group2?.id }]
         },
-        text: 'Integer rutrum, orci vestibulum ullamcorper ultricies, lacus quam ultricies odio, vitae placerat pede sem sit amet enim. Proin in tellus sit amet nibh dignissim sagittis. Nulla non lectus sed nisl molestie malesuada. Nullam sit amet magna in magna gravida vehicula. Mauris dictum facilisis augue. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Fusce tellus odio, dapibus id fermentum quis, suscipit id erat. ',
         event: {
             create: {
                 type: eventType.trenink,
                 price: 350,
                 time: new Date('2022-05-01T10:00:00.000Z'),
-                address: "adresa nějaká",
-                description: "random description",
+                address: "Zemědělská 23, Brno",
+                description: "Integer rutrum, orci vestibulum ullamcorper ultricies, lacus quam ultricies odio, vitae placerat pede sem sit amet enim. Proin in tellus sit amet nibh dignissim sagittis. Nulla non lectus sed nisl molestie malesuada. Nullam sit amet magna in magna gravida vehicula. Mauris dictum facilisis augue. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Fusce tellus odio, dapibus id fermentum quis, suscipit id erat. ",
                 people_limit: 20,
                 substitues_limit: 5,
-                address_short: "adresa krátká",
+                address_short: "Vedle cukrárny u Bílého koníčka",
                 organiser: { connect: { id: user1?.id } },
                 groups: {
                     connect: [{ id: group1?.id }, { id: group2?.id }]
-                }
+                },
             }
         }
     })
 
     const post3 = await postService.createPost({
         type: postType.event,
-        heading: "heading2",
+        heading: "Trénink",
         author: { connect: { id: user1?.id } },
         groups: {
             connect: [{ id: group1?.id }, { id: group2?.id }]
         },
-        text: 'Integer rutrum, orci vestibulum ullamcorper ultricies, lacus quam ultricies odio, vitae placerat pede sem sit amet enim. Proin in tellus sit amet nibh dignissim sagittis. Nulla non lectus sed nisl molestie malesuada. Nullam sit amet magna in magna gravida vehicula. Mauris dictum facilisis augue. Duis ante orci, molestie vitae vehicula venenatis, tincidunt ac pede. Fusce tellus odio, dapibus id fermentum quis, suscipit id erat. ',
         event: {
             create: {
                 type: eventType.trenink,
-                time: new Date('2023-05-01T10:00:00.000Z'),
-                address: "adresa dlouhá",
-                description: "random description",
+                time: new Date('2030-05-01T10:00:00.000Z'),
+                address: "Prague, Oklahoma 74864, Spojené státy americké",
                 people_limit: 20,
                 substitues_limit: 5,
-                address_short: "adresa krátká",
+                address_short: "Praha 2",
                 organiser: { connect: { id: user1?.id } },
                 groups: {
                     connect: [{ id: group1?.id }, { id: group2?.id }]

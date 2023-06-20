@@ -1,5 +1,7 @@
-import schemas from './schemas'
+import path from 'path';
+import paths from './paths';
 import userPaths from "./paths/user-paths";
+import schemas from './schemas';
 
 export default {
     definition: {
@@ -27,7 +29,7 @@ export default {
             }
         },
         paths: {
-            ...userPaths,
+            ...paths,
         }
     },
     apis: [

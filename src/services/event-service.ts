@@ -1,7 +1,7 @@
-import { Prisma, PrismaClient, Event, Post, Group } from "@prisma/client";
-import Logger from "../utils/logger";
-import EventAttendance from "../types/eventAttendance";
+import { Event, Group, Post, Prisma, PrismaClient } from "@prisma/client";
 import { eventIncludes } from "../helpers/queryIncludes";
+import EventAttendance from "../types/eventAttendance";
+import Logger from "../utils/logger";
 
 const prisma = new PrismaClient();
 
@@ -71,7 +71,7 @@ export default {
                 include: eventIncludes
             })
         } catch (e) {
-            Logger.error(`event-service.editEvent: ${e}`)
+            Logger.error(`event-service.editEvent: ${e}, arugments: ${JSON.stringify({ eventWhereUniqueInput, eventUpdateInput })}`)
         }
     },
     async deleteEvent(eventWhereUniqueInput: Prisma.EventWhereUniqueInput) {
