@@ -7,7 +7,7 @@
     "dev": "docker-compose -f docker-compose.local.yml up",
     "start": "nodemon src/app.ts",
     "prisma:docs": "npx prisma generate && npx prisma-docs-generator serve",
-    "deploy": "npx prisma migrate deploy && npx prisma db seed && npx ts-node src/app.ts"
+    "build": "npx tsc"
   },
   "prisma": {
     "seed": "ts-node ./prisma/seed.ts"
